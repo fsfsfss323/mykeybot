@@ -3,8 +3,6 @@ import random
 from telebot import types
 import sqlite3
 import os
-from threading import Thread
-from http.server import HTTPServer, BaseHTTPRequestHandler
 
 TOKEN = os.environ.get("TOKEN", "8793302361:AAHCxbHJ6v_oCyjHqiafsHHaf7Xr1EvkDO8")
 ADMIN_ID = 8091608667
@@ -388,14 +386,4 @@ def check_sub_callback(call):
         bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed))
     bot.answer_callback_query(call.id)
 
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is running")
-
-def run_server():
-    HTTPServer(('0.0.0.0', int(os.environ.get("PORT", 10000))), Handler).serve_forever()
-
-Thread(target=run_server).start()
 bot.polling()
