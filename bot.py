@@ -18,7 +18,7 @@ def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, lang TEXT DEFAULT 'ru')")
-    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT, created_by INTEGER)")
+    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT)")
     conn.commit()
     conn.close()
 
@@ -50,11 +50,11 @@ def get_lang(user_id):
     conn.close()
     return row[0] if row else 'ru'
 
-def create_ref_link(admin_id, message):
+def create_ref_link(message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     ref = str(uuid.uuid4())[:8]
-    c.execute("INSERT INTO ref_links (link, message, created_by) VALUES (?, ?, ?)", (ref, message, admin_id))
+    c.execute("INSERT INTO ref_links (link, message) VALUES (?, ?)", (ref, message))
     conn.commit()
     conn.close()
     return ref
@@ -129,18 +129,18 @@ LANG = {
         "private_btn": "🔒 Приватный сервер MM2",
         "delta_btn": "📥 Скачать инжектор (Delta)",
         "script_text": "📜 Скрипт на все игры:\n\n```lua\n{script}\n```",
-        "key_text": "🔑 Твой ключ:\n\n`{key}`\n\nСкопируй и вставь в скрипт.",
+        "key_text": "🔑 Твой ключ:\n\n`{key}`",
         "private_text": "🔒 Приватный сервер MM2\n\n{link}",
         "not_subscribed": "📢 Подпишитесь на каналы для получения скрипта и ключа",
-        "new_user": "🆕 Новый пользователь!\n\n🆔 ID: `{uid}`\n👤 Имя: {name}\n👥 Всего пользователей: {count}",
+        "new_user": "🆕 Новый пользователь!\n\n🆔 ID: `{uid}`\n👤 Имя: {name}\n👥 Всего: {count}",
         "admin_panel": "🛡 *Админ панель*\n\n👥 Пользователей: {users}\n🔗 Реф. ссылок: {refs}\n\nВыбери действие:",
-        "admin_stats": "📊 *Статистика:*\n👥 Всего пользователей: {users}\n🔗 Реф. ссылок: {refs}",
+        "admin_stats": "📊 *Статистика:*\n👥 Пользователей: {users}\n🔗 Реф. ссылок: {refs}",
         "admin_users_list": "👥 *Пользователи ({count}):*\n\n{list}",
         "admin_no_users": "👥 Пользователей пока нет.",
         "admin_broadcast_prompt": "📨 Введи текст рассылки (получат {count} чел.):",
         "admin_broadcast_done": "✅ Рассылка завершена! Отправлено: {sent}/{total}",
         "admin_ref_create_prompt": "📝 Введи текст который увидят ПОСЛЕ подписки:",
-        "admin_ref_create": "✅ Ссылка создана:\n\n`{link}`\n\nТекст после подписки: {message}",
+        "admin_ref_create": "✅ Ссылка создана:\n\n`{link}`\n\nТекст: {message}",
         "admin_ref_list": "🔗 *Реф. ссылки ({count}):*\n\n{list}",
         "admin_ref_delete": "✅ Ссылка удалена.",
         "admin_ref_create_btn": "➕ Создать реф. ссылку",
@@ -198,7 +198,7 @@ def t(user_id, key, **kwargs):
 
 def notify_admin(text):
     try:
-        bot.send_message(ADMIN_ID, text, parse_mode="Markdown")
+        bot.send_message(ADMIN_ID, text)
     except:
         pass
 
@@ -262,7 +262,6 @@ def get_admin_keyboard(user_id):
 def start(message):
     args = message.text.split()
     is_ref = len(args) > 1 and args[1].startswith("ref_")
-    
     add_user(message.from_user.id)
     
     if is_ref:
@@ -274,9 +273,6 @@ def start(message):
 def lang_callback(call):
     lang = call.data.replace("lang_", "")
     set_lang(call.from_user.id, lang)
-    user = call.from_user
-    text = t(call.from_user.id, "new_user", uid=user.id, name=user.first_name, count=count_users())
-    notify_admin(text)
     bot.send_message(call.message.chat.id, t(call.from_user.id, "start"), reply_markup=get_channels_keyboard(call.from_user.id))
     bot.answer_callback_query(call.id)
 
@@ -321,18 +317,17 @@ def broadcast_start(message):
 def user_callback(call):
     action = call.data
     user_id = call.from_user.id
-    is_ref = action == "check_sub_ref"
     
     if action.startswith("lang_"):
         return
     
     if action in ["check_sub", "check_sub_ref"]:
+        is_ref = action == "check_sub_ref"
         not_subbed = get_unsubscribed_channels(user_id)
         if not not_subbed:
             if is_ref:
-                ref_msg = get_ref_message(call.message.text.split("/start ref_")[1].split()[0] if "/start ref_" in call.message.text else None)
-                if not ref_msg:
-                    ref_msg = "✅ Подписка подтверждена! Спасибо!"
+                ref_code = call.message.text
+                ref_msg = "✅ Подписка подтверждена! Спасибо!"
                 bot.send_message(call.message.chat.id, ref_msg)
             else:
                 bot.send_message(call.message.chat.id, t(user_id, "success_check"), reply_markup=get_success_keyboard(user_id))
@@ -427,7 +422,7 @@ def user_callback(call):
 def create_ref_with_message(message):
     user_id = message.from_user.id
     msg_text = message.text
-    ref = create_ref_link(user_id, msg_text)
+    ref = create_ref_link(msg_text)
     link = f"https://t.me/{BOT_USERNAME}?start=ref_{ref}"
     bot.send_message(message.chat.id, t(user_id, "admin_ref_create", link=link, message=msg_text), parse_mode="Markdown")
 
