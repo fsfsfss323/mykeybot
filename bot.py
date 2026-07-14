@@ -116,13 +116,13 @@ LANG = {
     "ru": {
         "lang_select": "Выберите язык / Choose language",
         "start": "😌 Чтобы продолжить пользоваться ботом, пожалуйста, выполни следующие задания!",
-        "start_ref": "{message}\n\nПодпишись на каналы и получи скрипт:",
+        "start_ref": "{message}\n\nПодпишись на каналы:",
         "check_sub_btn": "🔍 Проверить подписку",
         "check_again_btn": "🔍 Проверить снова",
         "sub_btn": "Подписаться ✅",
         "unsub_btn": "Подписаться ❎",
         "success_check": "✅ Подписка подтверждена!\n\nВыбери что хочешь получить:",
-        "success_check_ref": "✅ Подписка подтверждена! Вот твой скрипт:",
+        "success_check_ref": "✅ Подписка подтверждена! Спасибо!",
         "not_all_subs": "❌ Осталось подписаться:",
         "script_btn": "📜 Скрипт на все игры",
         "key_btn": "🔑 Ключ",
@@ -132,16 +132,16 @@ LANG = {
         "key_text": "🔑 Твой ключ:\n\n`{key}`\n\nСкопируй и вставь в скрипт.",
         "private_text": "🔒 Приватный сервер MM2\n\n{link}",
         "not_subscribed": "📢 Подпишитесь на каналы для получения скрипта и ключа",
-        "new_user": "🆕 Новый пользователь!\n\n🆔 ID: `{uid}`\n👤 Имя: {name}\n📛 Username: @{uname}\n👥 Всего пользователей: {count}",
-        "admin_panel": "🛡 *Админ панель*\n\n👥 Пользователей: {users}\n📊 Каналов: {channels}\n🔑 Ключей: {keys}\n🔗 Реф. ссылок: {refs}\n\nВыбери действие:",
-        "admin_stats": "📊 *Статистика:*\n👥 Всего пользователей: {users}\n📊 Каналов: {channels}\n🔑 Ключей: {keys}\n🔗 Реф. ссылок: {refs}",
+        "new_user": "🆕 Новый пользователь!\n\n🆔 ID: `{uid}`\n👤 Имя: {name}\n👥 Всего пользователей: {count}",
+        "admin_panel": "🛡 *Админ панель*\n\n👥 Пользователей: {users}\n🔗 Реф. ссылок: {refs}\n\nВыбери действие:",
+        "admin_stats": "📊 *Статистика:*\n👥 Всего пользователей: {users}\n🔗 Реф. ссылок: {refs}",
         "admin_users_list": "👥 *Пользователи ({count}):*\n\n{list}",
         "admin_no_users": "👥 Пользователей пока нет.",
         "admin_broadcast_prompt": "📨 Введи текст рассылки (получат {count} чел.):",
         "admin_broadcast_done": "✅ Рассылка завершена! Отправлено: {sent}/{total}",
-        "admin_ref_create_prompt": "📝 Введи текст который будет показан при переходе по ссылке:",
-        "admin_ref_create": "✅ Реферальная ссылка создана:\n\n`{link}`\n\nТекст: {message}",
-        "admin_ref_list": "🔗 *Реферальные ссылки ({count}):*\n\n{list}",
+        "admin_ref_create_prompt": "📝 Введи текст который увидят при переходе по ссылке:",
+        "admin_ref_create": "✅ Ссылка создана:\n\n`{link}`\n\nТекст: {message}",
+        "admin_ref_list": "🔗 *Реф. ссылки ({count}):*\n\n{list}",
         "admin_ref_delete": "✅ Ссылка удалена.",
         "admin_ref_create_btn": "➕ Создать реф. ссылку",
         "admin_ref_list_btn": "📋 Список реф. ссылок",
@@ -151,38 +151,38 @@ LANG = {
         "admin_broadcast_btn": "📨 Рассылка",
     },
     "en": {
-        "lang_select": "Выберите язык / Choose language",
-        "start": "😌 To continue using the bot, please complete the following tasks!",
-        "start_ref": "{message}\n\nSubscribe to the channels and get the script:",
+        "lang_select": "Choose language",
+        "start": "😌 To continue, complete the tasks!",
+        "start_ref": "{message}\n\nSubscribe to channels:",
         "check_sub_btn": "🔍 Check subscription",
         "check_again_btn": "🔍 Check again",
         "sub_btn": "Subscribe ✅",
         "unsub_btn": "Subscribe ❎",
-        "success_check": "✅ Subscription confirmed!\n\nChoose what you want to get:",
-        "success_check_ref": "✅ Subscription confirmed! Here is your script:",
+        "success_check": "✅ Confirmed!\n\nChoose what to get:",
+        "success_check_ref": "✅ Confirmed! Thanks!",
         "not_all_subs": "❌ Still need to subscribe:",
-        "script_btn": "📜 Script for all games",
+        "script_btn": "📜 Script",
         "key_btn": "🔑 Key",
-        "private_btn": "🔒 Private server MM2",
-        "delta_btn": "📥 Download Injector (Delta)",
-        "script_text": "📜 Script for all games:\n\n```lua\n{script}\n```",
-        "key_text": "🔑 Your key:\n\n`{key}`\n\nCopy and paste into the script.",
-        "private_text": "🔒 Private server MM2\n\n{link}",
-        "not_subscribed": "📢 Subscribe to the channels to get the script and key",
-        "new_user": "🆕 New user!\n\n🆔 ID: `{uid}`\n👤 Name: {name}\n📛 Username: @{uname}\n👥 Total users: {count}",
-        "admin_panel": "🛡 *Admin Panel*\n\n👥 Users: {users}\n📊 Channels: {channels}\n🔑 Keys: {keys}\n🔗 Ref links: {refs}\n\nChoose action:",
-        "admin_stats": "📊 *Stats:*\n👥 Total users: {users}\n📊 Channels: {channels}\n🔑 Keys: {keys}\n🔗 Ref links: {refs}",
+        "private_btn": "🔒 Private server",
+        "delta_btn": "📥 Download Delta",
+        "script_text": "📜 Script:\n\n```lua\n{script}\n```",
+        "key_text": "🔑 Key: `{key}`",
+        "private_text": "🔒 MM2 Private:\n\n{link}",
+        "not_subscribed": "📢 Subscribe to get script and key",
+        "new_user": "🆕 New user!\n\n🆔 `{uid}`\n👤 {name}\n👥 Total: {count}",
+        "admin_panel": "🛡 *Admin*\n\n👥 Users: {users}\n🔗 Ref links: {refs}",
+        "admin_stats": "📊 *Stats:*\n👥 Users: {users}\n🔗 Ref links: {refs}",
         "admin_users_list": "👥 *Users ({count}):*\n\n{list}",
-        "admin_no_users": "👥 No users yet.",
-        "admin_broadcast_prompt": "📨 Enter broadcast text ({count} users):",
-        "admin_broadcast_done": "✅ Broadcast complete! Sent: {sent}/{total}",
-        "admin_ref_create_prompt": "📝 Enter the text that will be shown when clicking the link:",
-        "admin_ref_create": "✅ Referral link created:\n\n`{link}`\n\nText: {message}",
-        "admin_ref_list": "🔗 *Referral links ({count}):*\n\n{list}",
-        "admin_ref_delete": "✅ Link deleted.",
-        "admin_ref_create_btn": "➕ Create ref link",
-        "admin_ref_list_btn": "📋 Ref link list",
-        "admin_ref_del_btn": "🗑 Delete ref link",
+        "admin_no_users": "👥 No users.",
+        "admin_broadcast_prompt": "📨 Broadcast text ({count} users):",
+        "admin_broadcast_done": "✅ Sent: {sent}/{total}",
+        "admin_ref_create_prompt": "📝 Enter text for the link:",
+        "admin_ref_create": "✅ Link:\n\n`{link}`\n\nText: {message}",
+        "admin_ref_list": "🔗 *Links ({count}):*\n\n{list}",
+        "admin_ref_delete": "✅ Deleted.",
+        "admin_ref_create_btn": "➕ Create link",
+        "admin_ref_list_btn": "📋 Links",
+        "admin_ref_del_btn": "🗑 Delete link",
         "admin_stats_btn": "📊 Stats",
         "admin_users_btn": "👥 Users",
         "admin_broadcast_btn": "📨 Broadcast",
@@ -279,7 +279,7 @@ def lang_callback(call):
     lang = call.data.replace("lang_", "")
     set_lang(call.from_user.id, lang)
     user = call.from_user
-    text = t(call.from_user.id, "new_user", uid=user.id, name=user.first_name, uname=user.username or "нет", count=count_users())
+    text = t(call.from_user.id, "new_user", uid=user.id, name=user.first_name, count=count_users())
     notify_admin(text)
     bot.send_message(call.message.chat.id, t(call.from_user.id, "start"), reply_markup=get_channels_keyboard(call.from_user.id))
     bot.answer_callback_query(call.id)
@@ -299,7 +299,7 @@ def admin_panel(message):
     if not is_admin(message.from_user.id):
         return
     refs = len(get_all_ref_links())
-    text = t(message.from_user.id, "admin_panel", users=count_users(), channels=len(CHANNELS), keys=len(KEYS), refs=refs)
+    text = t(message.from_user.id, "admin_panel", users=count_users(), refs=refs)
     bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=get_admin_keyboard(message.from_user.id))
 
 @bot.message_handler(func=lambda m: m.text == ADMIN_SECRET2)
@@ -321,18 +321,20 @@ def broadcast_start(message):
             pass
     bot.send_message(message.chat.id, t(message.from_user.id, "admin_broadcast_done", sent=count, total=len(users)))
 
-@bot.callback_query_handler(func=lambda call: call.data in ["check_sub", "check_sub_ref", "get_script", "get_key", "get_private", "admin_stats", "admin_users_list", "admin_broadcast", "admin_ref_create", "admin_ref_list", "admin_ref_del"] + [f"admin_delref_{i}" for i in range(100)])
+@bot.callback_query_handler(func=lambda call: True)
 def user_callback(call):
     action = call.data
     user_id = call.from_user.id
     is_ref = action == "check_sub_ref"
+    
+    if action.startswith("lang_"):
+        return
     
     if action in ["check_sub", "check_sub_ref"]:
         not_subbed = get_unsubscribed_channels(user_id)
         if not not_subbed:
             if is_ref:
                 bot.send_message(call.message.chat.id, t(user_id, "success_check_ref"))
-                bot.send_message(call.message.chat.id, f"```lua\n{SCRIPT_LINK}\n```", parse_mode="Markdown")
             else:
                 bot.send_message(call.message.chat.id, t(user_id, "success_check"), reply_markup=get_success_keyboard(user_id))
         else:
@@ -377,11 +379,11 @@ def user_callback(call):
             return
         links = get_all_ref_links()
         if not links:
-            bot.send_message(call.message.chat.id, "🔗 Нет реферальных ссылок для удаления.")
+            bot.send_message(call.message.chat.id, "🔗 Нет реферальных ссылок.")
         else:
             keyboard = types.InlineKeyboardMarkup(row_width=1)
             for l in links:
-                keyboard.add(types.InlineKeyboardButton(f"❌ {l[1]} — {l[2][:20]}", callback_data=f"admin_delref_{l[0]}"))
+                keyboard.add(types.InlineKeyboardButton(f"❌ {l[1]}", callback_data=f"admin_delref_{l[0]}"))
             bot.send_message(call.message.chat.id, "Выбери ссылку для удаления:", reply_markup=keyboard)
         bot.answer_callback_query(call.id)
     
@@ -397,7 +399,7 @@ def user_callback(call):
         if not is_admin(user_id):
             return
         refs = len(get_all_ref_links())
-        bot.send_message(call.message.chat.id, t(user_id, "admin_stats", users=count_users(), channels=len(CHANNELS), keys=len(KEYS), refs=refs), parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, t(user_id, "admin_stats", users=count_users(), refs=refs), parse_mode="Markdown")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_users_list":
@@ -418,6 +420,9 @@ def user_callback(call):
             return
         msg = bot.send_message(call.message.chat.id, t(user_id, "admin_broadcast_prompt", count=count_users()))
         bot.register_next_step_handler(msg, broadcast_start)
+        bot.answer_callback_query(call.id)
+    
+    else:
         bot.answer_callback_query(call.id)
 
 def create_ref_with_message(message):
