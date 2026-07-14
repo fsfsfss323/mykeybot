@@ -3,6 +3,8 @@ import random
 from telebot import types
 import sqlite3
 import os
+from threading import Thread
+import socket
 
 TOKEN = os.environ.get("TOKEN", "8793302361:AAHCxbHJ6v_oCyjHqiafsHHaf7Xr1EvkDO8")
 ADMIN_ID = 8091608667
@@ -386,4 +388,21 @@ def check_sub_callback(call):
         bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed))
     bot.answer_callback_query(call.id)
 
+def run_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(('0.0.0.0', port))
+    server.listen(1)
+    print(f"Server started on port {port}")
+    while True:
+        client, addr = server.accept()
+        try:
+            client.recv(1024)
+            client.send(b"HTTP/1.1 200 OK\r\nContent-Length: 15\r\n\r\nBot is running")
+        except:
+            pass
+        client.close()
+
+Thread(target=run_server).start()
 bot.polling()
