@@ -169,27 +169,15 @@ def get_lang_keyboard():
 def get_channels_keyboard(user_id):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     for ch in CHANNELS:
-        keyboard.add(types.InlineKeyboardButton(
-            text=f"{t(user_id, 'sub_btn')} {ch['name']}",
-            url=ch['url']
-        ))
-    keyboard.add(types.InlineKeyboardButton(
-        text=t(user_id, "check_sub_btn"),
-        callback_data="check_sub"
-    ))
+        keyboard.add(types.InlineKeyboardButton(text=f"{t(user_id, 'sub_btn')} {ch['name']}", url=ch['url']))
+    keyboard.add(types.InlineKeyboardButton(text=t(user_id, "check_sub_btn"), callback_data="check_sub"))
     return keyboard
 
 def get_unsub_keyboard(not_subbed, user_id):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     for ch in not_subbed:
-        keyboard.add(types.InlineKeyboardButton(
-            text=f"{t(user_id, 'unsub_btn')} {ch['name']}",
-            url=ch['url']
-        ))
-    keyboard.add(types.InlineKeyboardButton(
-        text=t(user_id, "check_again_btn"),
-        callback_data="check_sub"
-    ))
+        keyboard.add(types.InlineKeyboardButton(text=f"{t(user_id, 'unsub_btn')} {ch['name']}", url=ch['url']))
+    keyboard.add(types.InlineKeyboardButton(text=t(user_id, "check_again_btn"), callback_data="check_sub"))
     return keyboard
 
 def get_success_keyboard(user_id):
@@ -202,38 +190,14 @@ def get_success_keyboard(user_id):
 
 def get_admin_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(
-        types.InlineKeyboardButton("📝 Приветствие", callback_data="admin_edit_start"),
-        types.InlineKeyboardButton("📢 Не подписан", callback_data="admin_edit_notsub")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("🖼 Фото старт", callback_data="admin_photo_start"),
-        types.InlineKeyboardButton("➕ Канал", callback_data="admin_add_channel")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("➖ Канал", callback_data="admin_del_channel"),
-        types.InlineKeyboardButton("📋 Каналы", callback_data="admin_list_channels")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("🔑 Ключи", callback_data="admin_list_keys"),
-        types.InlineKeyboardButton("🔑 Изменить ключи", callback_data="admin_edit_keys")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("📨 Рассылка", callback_data="admin_broadcast"),
-        types.InlineKeyboardButton("📊 Статистика", callback_data="admin_stats")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("👥 Пользователи", callback_data="admin_users_list"),
-        types.InlineKeyboardButton("🚫 Удалить юзера", callback_data="admin_del_user")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("📨 Личное сообщение", callback_data="admin_pm"),
-        types.InlineKeyboardButton("🔗 Изменить прив.", callback_data="admin_edit_link")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("📜 Изменить скрипт", callback_data="admin_edit_script"),
-        types.InlineKeyboardButton("📥 Изменить Delta", callback_data="admin_edit_delta")
-    )
+    keyboard.add(types.InlineKeyboardButton("📝 Приветствие", callback_data="admin_edit_start"), types.InlineKeyboardButton("📢 Не подписан", callback_data="admin_edit_notsub"))
+    keyboard.add(types.InlineKeyboardButton("🖼 Фото старт", callback_data="admin_photo_start"), types.InlineKeyboardButton("➕ Канал", callback_data="admin_add_channel"))
+    keyboard.add(types.InlineKeyboardButton("➖ Канал", callback_data="admin_del_channel"), types.InlineKeyboardButton("📋 Каналы", callback_data="admin_list_channels"))
+    keyboard.add(types.InlineKeyboardButton("🔑 Ключи", callback_data="admin_list_keys"), types.InlineKeyboardButton("🔑 Изменить ключи", callback_data="admin_edit_keys"))
+    keyboard.add(types.InlineKeyboardButton("📨 Рассылка", callback_data="admin_broadcast"), types.InlineKeyboardButton("📊 Статистика", callback_data="admin_stats"))
+    keyboard.add(types.InlineKeyboardButton("👥 Пользователи", callback_data="admin_users_list"), types.InlineKeyboardButton("🚫 Удалить юзера", callback_data="admin_del_user"))
+    keyboard.add(types.InlineKeyboardButton("📨 Личное сообщение", callback_data="admin_pm"), types.InlineKeyboardButton("🔗 Изменить прив.", callback_data="admin_edit_link"))
+    keyboard.add(types.InlineKeyboardButton("📜 Изменить скрипт", callback_data="admin_edit_script"), types.InlineKeyboardButton("📥 Изменить Delta", callback_data="admin_edit_delta"))
     return keyboard
 
 @bot.message_handler(commands=["start"])
@@ -285,10 +249,200 @@ def admin_callback(call):
     action = call.data
     
     if action == "admin_stats":
-        text = f"📊 *Статистика:*\n👥 Всего пользователей: {count_users()}\n📊 Каналов: {len(CHANNELS)}\n🔑 Ключей: {len(KEYS)}"
-        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"📊 *Статистика:*\n👥 Всего пользователей: {count_users()}\n📊 Каналов: {len(CHANNELS)}\n🔑 Ключей: {len(KEYS)}", parse_mode="Markdown")
     
     elif action == "admin_users_list":
         users = get_all_users()
         if not users:
-            bot.send_message(call.message.chat.id
+            bot.send_message(call.message.chat.id, "👥 Пользователей пока нет.")
+        else:
+            text = "\n".join(f"• `{u[0]}` ({u[1]})" for u in users[:50])
+            if len(users) > 50:
+                text += f"\n... и ещё {len(users) - 50}"
+            bot.send_message(call.message.chat.id, f"👥 *Пользователи ({len(users)}):*\n\n{text}", parse_mode="Markdown")
+    
+    elif action == "admin_del_user":
+        msg = bot.send_message(call.message.chat.id, "🚫 Введи ID пользователя которого хочешь удалить:")
+        bot.register_next_step_handler(msg, del_user_by_id)
+    
+    elif action == "admin_pm":
+        msg = bot.send_message(call.message.chat.id, "📨 Введи ID пользователя и сообщение:\nФормат: ID текст сообщения")
+        bot.register_next_step_handler(msg, send_pm)
+    
+    elif action == "admin_list_channels":
+        text = "\n".join(f"• @{ch['name']} → {ch['url']}" for ch in CHANNELS)
+        bot.send_message(call.message.chat.id, f"📋 *Каналы:*\n{text}", parse_mode="Markdown")
+    
+    elif action == "admin_list_keys":
+        text = "\n".join(f"• {k}" for k in KEYS)
+        bot.send_message(call.message.chat.id, f"🔑 *Ключи:*\n{text}", parse_mode="Markdown")
+    
+    elif action == "admin_edit_keys":
+        msg = bot.send_message(call.message.chat.id, "🔑 Введи новые ключи через запятую:")
+        bot.register_next_step_handler(msg, save_keys)
+    
+    elif action == "admin_edit_link":
+        msg = bot.send_message(call.message.chat.id, "🔗 Введи новую ссылку на приватный сервер:")
+        bot.register_next_step_handler(msg, save_link)
+    
+    elif action == "admin_edit_script":
+        msg = bot.send_message(call.message.chat.id, "📜 Введи новую ссылку на скрипт (pastebin):")
+        bot.register_next_step_handler(msg, save_script)
+    
+    elif action == "admin_edit_delta":
+        msg = bot.send_message(call.message.chat.id, "📥 Введи новую ссылку на Delta:")
+        bot.register_next_step_handler(msg, save_delta)
+    
+    elif action == "admin_edit_start":
+        msg = bot.send_message(call.message.chat.id, "📝 Введи новый текст для приветствия:")
+        bot.register_next_step_handler(msg, save_message, "start")
+    
+    elif action == "admin_edit_notsub":
+        msg = bot.send_message(call.message.chat.id, "📢 Введи новый текст для неподписанных:")
+        bot.register_next_step_handler(msg, save_message, "not_subscribed")
+    
+    elif action == "admin_photo_start":
+        msg = bot.send_message(call.message.chat.id, "🖼 Отправь фото для приветствия (или /skip чтобы убрать):")
+        bot.register_next_step_handler(msg, save_photo)
+    
+    elif action == "admin_add_channel":
+        msg = bot.send_message(call.message.chat.id, "➕ Введи данные канала:\nимя_канала | ссылка\nПример: mychannel | https://t.me/mychannel")
+        bot.register_next_step_handler(msg, add_channel)
+    
+    elif action == "admin_del_channel":
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        for i, ch in enumerate(CHANNELS):
+            keyboard.add(types.InlineKeyboardButton(f"❌ @{ch['name']}", callback_data=f"admin_del_{i}"))
+        bot.send_message(call.message.chat.id, "➖ Выбери канал для удаления:", reply_markup=keyboard)
+    
+    elif action.startswith("admin_del_"):
+        idx = int(action.replace("admin_del_", ""))
+        if 0 <= idx < len(CHANNELS):
+            deleted = CHANNELS.pop(idx)
+            bot.send_message(call.message.chat.id, f"✅ Канал @{deleted['name']} удалён.")
+    
+    elif action == "admin_broadcast":
+        msg = bot.send_message(call.message.chat.id, f"📨 Введи текст рассылки (получат {count_users()} чел.):\nИли /skip для рассылки без текста")
+        bot.register_next_step_handler(msg, broadcast_step1)
+    
+    bot.answer_callback_query(call.id)
+
+@bot.callback_query_handler(func=lambda call: call.data in ["check_sub", "get_script", "get_key", "get_private"])
+def user_callback(call):
+    action = call.data
+    user_id = call.from_user.id
+    
+    if action == "check_sub":
+        not_subbed = get_unsubscribed_channels(user_id)
+        if not not_subbed:
+            bot.send_message(call.message.chat.id, t(user_id, "success_check"), reply_markup=get_success_keyboard(user_id))
+        else:
+            text = t(user_id, "not_all_subs") + "\n\n"
+            for ch in not_subbed:
+                text += f"❎ {ch['name']}\n"
+            bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed, user_id))
+    
+    elif action == "get_script":
+        bot.send_message(call.message.chat.id, t(user_id, "script_text", script=SCRIPT_LINK), parse_mode="Markdown")
+        bot.answer_callback_query(call.id, "✅")
+    
+    elif action == "get_key":
+        key = random.choice(KEYS)
+        bot.send_message(call.message.chat.id, t(user_id, "key_text", key=key), parse_mode="Markdown")
+        bot.answer_callback_query(call.id, "✅")
+    
+    elif action == "get_private":
+        bot.send_message(call.message.chat.id, t(user_id, "private_text", link=PRIVATE_SERVER_LINK))
+        bot.answer_callback_query(call.id, "✅")
+
+def del_user_by_id(message):
+    try:
+        uid = int(message.text.strip())
+        remove_user(uid)
+        bot.send_message(message.chat.id, f"✅ Пользователь {uid} удалён.")
+    except:
+        bot.send_message(message.chat.id, "❌ Неверный ID.")
+
+def send_pm(message):
+    try:
+        parts = message.text.split(" ", 1)
+        uid = int(parts[0])
+        text = parts[1]
+        bot.send_message(uid, f"📨 *Сообщение от администратора:*\n\n{text}", parse_mode="Markdown")
+        bot.send_message(message.chat.id, f"✅ Отправлено пользователю {uid}")
+    except:
+        bot.send_message(message.chat.id, "❌ Неверный формат. Пример: 123456789 Привет!")
+
+def save_keys(message):
+    global KEYS
+    KEYS = [k.strip() for k in message.text.split(",")]
+    bot.send_message(message.chat.id, f"✅ Ключи обновлены! Теперь их {len(KEYS)}:\n" + "\n".join(KEYS))
+
+def save_link(message):
+    global PRIVATE_SERVER_LINK
+    PRIVATE_SERVER_LINK = message.text.strip()
+    bot.send_message(message.chat.id, "✅ Ссылка на приватку обновлена!")
+
+def save_script(message):
+    global SCRIPT_LINK
+    SCRIPT_LINK = message.text.strip()
+    bot.send_message(message.chat.id, "✅ Ссылка на скрипт обновлена!")
+
+def save_delta(message):
+    global DELTA_LINK
+    DELTA_LINK = message.text.strip()
+    bot.send_message(message.chat.id, "✅ Ссылка на Delta обновлена!")
+
+def save_message(message, msg_type):
+    LANG["ru"][msg_type] = message.text
+    LANG["en"][msg_type] = message.text
+    bot.send_message(message.chat.id, "✅ Сообщение обновлено!")
+
+def save_photo(message):
+    if message.content_type == "photo":
+        PHOTOS["start"] = message.photo[-1].file_id
+        bot.send_message(message.chat.id, "✅ Фото сохранено!")
+    elif message.text == "/skip":
+        PHOTOS["start"] = None
+        bot.send_message(message.chat.id, "✅ Фото убрано.")
+
+def add_channel(message):
+    try:
+        name, url = message.text.split("|")
+        CHANNELS.append({"name": name.strip().replace("@", ""), "url": url.strip()})
+        bot.send_message(message.chat.id, "✅ Канал добавлен!")
+    except:
+        bot.send_message(message.chat.id, "❌ Неверный формат. Пример: mychannel | https://t.me/mychannel")
+
+def broadcast_step1(message):
+    if message.text != "/skip":
+        MESSAGES["broadcast_text"] = message.text
+    msg = bot.send_message(message.chat.id, "🖼 Отправь фото для рассылки (или /skip):")
+    bot.register_next_step_handler(msg, broadcast_step2)
+
+def broadcast_step2(message):
+    photo_id = None
+    if message.content_type == "photo":
+        photo_id = message.photo[-1].file_id
+    elif message.text != "/skip":
+        bot.send_message(message.chat.id, "❌ Отправь фото или /skip")
+        return
+    users = [u[0] for u in get_all_users()]
+    bot.send_message(message.chat.id, f"📨 Начинаю рассылку на {len(users)} пользователей...")
+    text = MESSAGES.get("broadcast_text", "")
+    count = 0
+    for user_id in users:
+        try:
+            if photo_id:
+                bot.send_photo(user_id, photo_id, caption=text)
+            else:
+                bot.send_message(user_id, text)
+            count += 1
+        except:
+            pass
+    bot.send_message(message.chat.id, f"✅ Рассылка завершена! Отправлено: {count}/{len(users)}")
+
+def run_server():
+    port = int(os.environ.get("PORT", 10000))
+    s = socket.socket()
+    s.setsock
