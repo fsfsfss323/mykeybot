@@ -116,13 +116,13 @@ LANG = {
     "ru": {
         "lang_select": "Выберите язык / Choose language",
         "start": "😌 Чтобы продолжить пользоваться ботом, пожалуйста, выполни следующие задания!",
-        "start_ref": "{message}\n\nПодпишись на каналы:",
+        "start_ref": "🔗 Ты перешёл по реферальной ссылке!\n\nПодпишись на каналы и нажми проверить:",
         "check_sub_btn": "🔍 Проверить подписку",
         "check_again_btn": "🔍 Проверить снова",
         "sub_btn": "Подписаться ✅",
         "unsub_btn": "Подписаться ❎",
         "success_check": "✅ Подписка подтверждена!\n\nВыбери что хочешь получить:",
-        "success_check_ref": "✅ Подписка подтверждена! Спасибо!",
+        "success_check_ref": "{message}",
         "not_all_subs": "❌ Осталось подписаться:",
         "script_btn": "📜 Скрипт на все игры",
         "key_btn": "🔑 Ключ",
@@ -139,8 +139,8 @@ LANG = {
         "admin_no_users": "👥 Пользователей пока нет.",
         "admin_broadcast_prompt": "📨 Введи текст рассылки (получат {count} чел.):",
         "admin_broadcast_done": "✅ Рассылка завершена! Отправлено: {sent}/{total}",
-        "admin_ref_create_prompt": "📝 Введи текст который увидят при переходе по ссылке:",
-        "admin_ref_create": "✅ Ссылка создана:\n\n`{link}`\n\nТекст: {message}",
+        "admin_ref_create_prompt": "📝 Введи текст который увидят ПОСЛЕ подписки:",
+        "admin_ref_create": "✅ Ссылка создана:\n\n`{link}`\n\nТекст после подписки: {message}",
         "admin_ref_list": "🔗 *Реф. ссылки ({count}):*\n\n{list}",
         "admin_ref_delete": "✅ Ссылка удалена.",
         "admin_ref_create_btn": "➕ Создать реф. ссылку",
@@ -153,30 +153,30 @@ LANG = {
     "en": {
         "lang_select": "Choose language",
         "start": "😌 To continue, complete the tasks!",
-        "start_ref": "{message}\n\nSubscribe to channels:",
-        "check_sub_btn": "🔍 Check subscription",
+        "start_ref": "🔗 You came from a referral link!\n\nSubscribe and check:",
+        "check_sub_btn": "🔍 Check",
         "check_again_btn": "🔍 Check again",
         "sub_btn": "Subscribe ✅",
         "unsub_btn": "Subscribe ❎",
-        "success_check": "✅ Confirmed!\n\nChoose what to get:",
-        "success_check_ref": "✅ Confirmed! Thanks!",
-        "not_all_subs": "❌ Still need to subscribe:",
+        "success_check": "✅ Confirmed!\n\nChoose:",
+        "success_check_ref": "{message}",
+        "not_all_subs": "❌ Still need:",
         "script_btn": "📜 Script",
         "key_btn": "🔑 Key",
         "private_btn": "🔒 Private server",
-        "delta_btn": "📥 Download Delta",
+        "delta_btn": "📥 Delta",
         "script_text": "📜 Script:\n\n```lua\n{script}\n```",
         "key_text": "🔑 Key: `{key}`",
         "private_text": "🔒 MM2 Private:\n\n{link}",
         "not_subscribed": "📢 Subscribe to get script and key",
         "new_user": "🆕 New user!\n\n🆔 `{uid}`\n👤 {name}\n👥 Total: {count}",
-        "admin_panel": "🛡 *Admin*\n\n👥 Users: {users}\n🔗 Ref links: {refs}",
-        "admin_stats": "📊 *Stats:*\n👥 Users: {users}\n🔗 Ref links: {refs}",
+        "admin_panel": "🛡 *Admin*\n\n👥 Users: {users}\n🔗 Links: {refs}",
+        "admin_stats": "📊 *Stats:*\n👥 Users: {users}\n🔗 Links: {refs}",
         "admin_users_list": "👥 *Users ({count}):*\n\n{list}",
         "admin_no_users": "👥 No users.",
         "admin_broadcast_prompt": "📨 Broadcast text ({count} users):",
         "admin_broadcast_done": "✅ Sent: {sent}/{total}",
-        "admin_ref_create_prompt": "📝 Enter text for the link:",
+        "admin_ref_create_prompt": "📝 Enter text to show AFTER subscription:",
         "admin_ref_create": "✅ Link:\n\n`{link}`\n\nText: {message}",
         "admin_ref_list": "🔗 *Links ({count}):*\n\n{list}",
         "admin_ref_delete": "✅ Deleted.",
@@ -266,11 +266,7 @@ def start(message):
     add_user(message.from_user.id)
     
     if is_ref:
-        ref_code = args[1].replace("ref_", "")
-        ref_msg = get_ref_message(ref_code)
-        msg = ref_msg if ref_msg else "🔗 Ты перешёл по реферальной ссылке!"
-        text = t(message.from_user.id, "start_ref", message=msg)
-        bot.send_message(message.chat.id, text, reply_markup=get_channels_keyboard(message.from_user.id, is_ref=True))
+        bot.send_message(message.chat.id, t(message.from_user.id, "start_ref"), reply_markup=get_channels_keyboard(message.from_user.id, is_ref=True))
     else:
         bot.send_message(message.chat.id, LANG["ru"]["lang_select"], reply_markup=get_lang_keyboard())
 
@@ -334,7 +330,10 @@ def user_callback(call):
         not_subbed = get_unsubscribed_channels(user_id)
         if not not_subbed:
             if is_ref:
-                bot.send_message(call.message.chat.id, t(user_id, "success_check_ref"))
+                ref_msg = get_ref_message(call.message.text.split("/start ref_")[1].split()[0] if "/start ref_" in call.message.text else None)
+                if not ref_msg:
+                    ref_msg = "✅ Подписка подтверждена! Спасибо!"
+                bot.send_message(call.message.chat.id, ref_msg)
             else:
                 bot.send_message(call.message.chat.id, t(user_id, "success_check"), reply_markup=get_success_keyboard(user_id))
         else:
