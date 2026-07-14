@@ -17,8 +17,8 @@ DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_users.db
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, lang TEXT DEFAULT 'ru', ref_link TEXT)")
-    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, created_by INTEGER)")
+    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, lang TEXT DEFAULT 'ru')")
+    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT, created_by INTEGER)")
     conn.commit()
     conn.close()
 
@@ -50,19 +50,27 @@ def get_lang(user_id):
     conn.close()
     return row[0] if row else 'ru'
 
-def create_ref_link(admin_id):
+def create_ref_link(admin_id, message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     ref = str(uuid.uuid4())[:8]
-    c.execute("INSERT INTO ref_links (link, created_by) VALUES (?, ?)", (ref, admin_id))
+    c.execute("INSERT INTO ref_links (link, message, created_by) VALUES (?, ?, ?)", (ref, message, admin_id))
     conn.commit()
     conn.close()
     return ref
 
+def get_ref_message(ref):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT message FROM ref_links WHERE link = ?", (ref,))
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else None
+
 def get_all_ref_links():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id, link, created_by FROM ref_links")
+    c.execute("SELECT id, link, message FROM ref_links")
     links = c.fetchall()
     conn.close()
     return links
@@ -108,7 +116,7 @@ LANG = {
     "ru": {
         "lang_select": "Выберите язык / Choose language",
         "start": "😌 Чтобы продолжить пользоваться ботом, пожалуйста, выполни следующие задания!",
-        "start_ref": "🔗 Ты перешёл по реферальной ссылке!\n\nПодпишись на каналы и получи скрипт:",
+        "start_ref": "{message}\n\nПодпишись на каналы и получи скрипт:",
         "check_sub_btn": "🔍 Проверить подписку",
         "check_again_btn": "🔍 Проверить снова",
         "sub_btn": "Подписаться ✅",
@@ -131,7 +139,8 @@ LANG = {
         "admin_no_users": "👥 Пользователей пока нет.",
         "admin_broadcast_prompt": "📨 Введи текст рассылки (получат {count} чел.):",
         "admin_broadcast_done": "✅ Рассылка завершена! Отправлено: {sent}/{total}",
-        "admin_ref_create": "✅ Реферальная ссылка создана:\n\n`{link}`\n\nСкопируй и отправляй!",
+        "admin_ref_create_prompt": "📝 Введи текст который будет показан при переходе по ссылке:",
+        "admin_ref_create": "✅ Реферальная ссылка создана:\n\n`{link}`\n\nТекст: {message}",
         "admin_ref_list": "🔗 *Реферальные ссылки ({count}):*\n\n{list}",
         "admin_ref_delete": "✅ Ссылка удалена.",
         "admin_ref_create_btn": "➕ Создать реф. ссылку",
@@ -144,7 +153,7 @@ LANG = {
     "en": {
         "lang_select": "Выберите язык / Choose language",
         "start": "😌 To continue using the bot, please complete the following tasks!",
-        "start_ref": "🔗 You came from a referral link!\n\nSubscribe to the channels and get the script:",
+        "start_ref": "{message}\n\nSubscribe to the channels and get the script:",
         "check_sub_btn": "🔍 Check subscription",
         "check_again_btn": "🔍 Check again",
         "sub_btn": "Subscribe ✅",
@@ -167,7 +176,8 @@ LANG = {
         "admin_no_users": "👥 No users yet.",
         "admin_broadcast_prompt": "📨 Enter broadcast text ({count} users):",
         "admin_broadcast_done": "✅ Broadcast complete! Sent: {sent}/{total}",
-        "admin_ref_create": "✅ Referral link created:\n\n`{link}`\n\nCopy and send!",
+        "admin_ref_create_prompt": "📝 Enter the text that will be shown when clicking the link:",
+        "admin_ref_create": "✅ Referral link created:\n\n`{link}`\n\nText: {message}",
         "admin_ref_list": "🔗 *Referral links ({count}):*\n\n{list}",
         "admin_ref_delete": "✅ Link deleted.",
         "admin_ref_create_btn": "➕ Create ref link",
@@ -256,7 +266,11 @@ def start(message):
     add_user(message.from_user.id)
     
     if is_ref:
-        bot.send_message(message.chat.id, t(message.from_user.id, "start_ref"), reply_markup=get_channels_keyboard(message.from_user.id, is_ref=True))
+        ref_code = args[1].replace("ref_", "")
+        ref_msg = get_ref_message(ref_code)
+        msg = ref_msg if ref_msg else "🔗 Ты перешёл по реферальной ссылке!"
+        text = t(message.from_user.id, "start_ref", message=msg)
+        bot.send_message(message.chat.id, text, reply_markup=get_channels_keyboard(message.from_user.id, is_ref=True))
     else:
         bot.send_message(message.chat.id, LANG["ru"]["lang_select"], reply_markup=get_lang_keyboard())
 
@@ -343,9 +357,8 @@ def user_callback(call):
     elif action == "admin_ref_create":
         if not is_admin(user_id):
             return
-        ref = create_ref_link(user_id)
-        link = f"https://t.me/{BOT_USERNAME}?start=ref_{ref}"
-        bot.send_message(call.message.chat.id, t(user_id, "admin_ref_create", link=link), parse_mode="Markdown")
+        msg = bot.send_message(call.message.chat.id, t(user_id, "admin_ref_create_prompt"))
+        bot.register_next_step_handler(msg, create_ref_with_message)
         bot.answer_callback_query(call.id)
     
     elif action == "admin_ref_list":
@@ -355,7 +368,7 @@ def user_callback(call):
         if not links:
             bot.send_message(call.message.chat.id, "🔗 Нет реферальных ссылок.")
         else:
-            text = "\n".join(f"• `https://t.me/{BOT_USERNAME}?start=ref_{l[1]}`" for l in links)
+            text = "\n".join(f"• `{l[1]}` — {l[2][:30]}" for l in links)
             bot.send_message(call.message.chat.id, t(user_id, "admin_ref_list", count=len(links), list=text), parse_mode="Markdown")
         bot.answer_callback_query(call.id)
     
@@ -368,7 +381,7 @@ def user_callback(call):
         else:
             keyboard = types.InlineKeyboardMarkup(row_width=1)
             for l in links:
-                keyboard.add(types.InlineKeyboardButton(f"❌ {l[1]}", callback_data=f"admin_delref_{l[0]}"))
+                keyboard.add(types.InlineKeyboardButton(f"❌ {l[1]} — {l[2][:20]}", callback_data=f"admin_delref_{l[0]}"))
             bot.send_message(call.message.chat.id, "Выбери ссылку для удаления:", reply_markup=keyboard)
         bot.answer_callback_query(call.id)
     
@@ -406,6 +419,13 @@ def user_callback(call):
         msg = bot.send_message(call.message.chat.id, t(user_id, "admin_broadcast_prompt", count=count_users()))
         bot.register_next_step_handler(msg, broadcast_start)
         bot.answer_callback_query(call.id)
+
+def create_ref_with_message(message):
+    user_id = message.from_user.id
+    msg_text = message.text
+    ref = create_ref_link(user_id, msg_text)
+    link = f"https://t.me/{BOT_USERNAME}?start=ref_{ref}"
+    bot.send_message(message.chat.id, t(user_id, "admin_ref_create", link=link, message=msg_text), parse_mode="Markdown")
 
 def run_server():
     port = int(os.environ.get("PORT", 10000))
