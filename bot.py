@@ -7,7 +7,7 @@ import socket
 from threading import Thread
 import uuid
 
-TOKEN = os.environ.get("TOKEN", "8793302361:AAGPBeobA4arew9kv09Zm1dDQ-wZSyTi65k ")
+TOKEN = os.environ.get("TOKEN", "8793302361:AAGPBeobA4arew9kv09Zm1dDQ-wZSyTi65k")
 ADMIN_ID = 8091608667
 ADMIN_SECRET = "larscriptkryyyyyyt"
 ADMIN_SECRET2 = "кресло качалка"
