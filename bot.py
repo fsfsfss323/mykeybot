@@ -7,7 +7,7 @@ import socket
 from threading import Thread
 import uuid
 
-TOKEN = os.environ.get("TOKEN", "8793302361:AAH4Vlkkal3acsWtRrjrO71kBpsiQS_EB5s")
+TOKEN = os.environ.get("TOKEN", "8793302361:AAGPBeobA4arew9kv09Zm1dDQ-wZSyTi65k")
 ADMIN_ID = 8091608667
 ADMIN_SECRET = "larscriptkryyyyyyt"
 ADMIN_SECRET2 = "кресло качалка"
@@ -18,7 +18,7 @@ def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, ref_code TEXT)")
-    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT)")
+    c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT, script TEXT)")
     conn.commit()
     conn.close()
 
@@ -47,27 +47,27 @@ def get_user_ref_code(user_id):
     conn.close()
     return row[0] if row else None
 
-def create_ref_link(message):
+def create_ref_link(message, script):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     ref = str(uuid.uuid4())[:8]
-    c.execute("INSERT INTO ref_links (link, message) VALUES (?, ?)", (ref, message))
+    c.execute("INSERT INTO ref_links (link, message, script) VALUES (?, ?, ?)", (ref, message, script))
     conn.commit()
     conn.close()
     return ref
 
-def get_ref_message(ref):
+def get_ref_data(ref):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT message FROM ref_links WHERE link = ?", (ref,))
+    c.execute("SELECT message, script FROM ref_links WHERE link = ?", (ref,))
     row = c.fetchone()
     conn.close()
-    return row[0] if row else None
+    return (row[0], row[1]) if row else (None, None)
 
 def get_all_ref_links():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id, link, message FROM ref_links")
+    c.execute("SELECT id, link, message, script FROM ref_links")
     links = c.fetchall()
     conn.close()
     return links
@@ -216,8 +216,14 @@ def user_callback(call):
         if not not_subbed:
             if is_ref:
                 ref_code = get_user_ref_code(user_id)
-                ref_msg = get_ref_message(ref_code) if ref_code else None
-                bot.send_message(call.message.chat.id, ref_msg if ref_msg else "✅ Подписка подтверждена!")
+                if ref_code:
+                    msg, script = get_ref_data(ref_code)
+                    if script:
+                        bot.send_message(call.message.chat.id, f"{msg}\n\n```lua\n{script}\n```", parse_mode="Markdown")
+                    else:
+                        bot.send_message(call.message.chat.id, msg if msg else "✅ Подписка подтверждена!")
+                else:
+                    bot.send_message(call.message.chat.id, "✅ Подписка подтверждена!")
             else:
                 bot.send_message(call.message.chat.id, "✅ Подписка подтверждена!\n\nВыбери что хочешь получить:", reply_markup=get_success_keyboard())
         else:
@@ -242,8 +248,8 @@ def user_callback(call):
     elif action == "admin_ref_create":
         if not is_admin(user_id):
             return
-        msg = bot.send_message(call.message.chat.id, "📝 Введи текст который увидят ПОСЛЕ подписки:")
-        bot.register_next_step_handler(msg, create_ref_with_message)
+        msg = bot.send_message(call.message.chat.id, "📝 Введи ТЕКСТ который увидят после подписки:")
+        bot.register_next_step_handler(msg, ref_step1)
         bot.answer_callback_query(call.id)
     
     elif action == "admin_ref_list":
@@ -308,11 +314,16 @@ def user_callback(call):
     else:
         bot.answer_callback_query(call.id)
 
-def create_ref_with_message(message):
+def ref_step1(message):
     msg_text = message.text
-    ref = create_ref_link(msg_text)
+    msg = bot.send_message(message.chat.id, "📜 Теперь введи СКРИПТ (loadstring) который будет выдан:\nИли /skip если только текст")
+    bot.register_next_step_handler(msg, ref_step2, msg_text)
+
+def ref_step2(message, msg_text):
+    script = message.text if message.text != "/skip" else None
+    ref = create_ref_link(msg_text, script)
     link = f"https://t.me/{BOT_USERNAME}?start=ref_{ref}"
-    bot.send_message(message.chat.id, f"✅ Ссылка создана:\n\n`{link}`\n\nТекст: {msg_text}", parse_mode="Markdown")
+    bot.send_message(message.chat.id, f"✅ Ссылка создана:\n\n`{link}`\n\nТекст: {msg_text}" + (f"\nСкрипт: да" if script else "\nСкрипт: нет"), parse_mode="Markdown")
 
 def run_server():
     port = int(os.environ.get("PORT", 10000))
