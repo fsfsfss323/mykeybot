@@ -113,7 +113,7 @@ bot = telebot.TeleBot(TOKEN)
 
 def notify_admin(text):
     try:
-        bot.send_message(ADMIN_ID, text, parse_mode="Markdown")
+        bot.send_message(ADMIN_ID, text)
     except:
         pass
 
@@ -174,8 +174,7 @@ def start(message):
     
     if is_new:
         user = message.from_user
-        text = f"🆕 *Новый пользователь!*\n\n🆔 ID: `{user.id}`\n👤 Имя: {user.first_name}\n📛 @{user.username or 'нет'}\n👥 Всего: {count_users()}"
-        notify_admin(text)
+        notify_admin(f"🆕 Новый пользователь!\n\n🆔 ID: {user.id}\n👤 Имя: {user.first_name}\n📛 @{user.username or 'нет'}\n👥 Всего: {count_users()}")
     
     if is_ref:
         bot.send_message(message.chat.id, "🔗 Ты перешёл по реферальной ссылке!\n\nПодпишись на каналы и нажми проверить:", reply_markup=get_channels_keyboard(is_ref=True))
@@ -188,7 +187,7 @@ def getkey(message):
     not_subbed = get_unsubscribed_channels(message.from_user.id)
     if not not_subbed:
         k = random.choice(KEYS)
-        bot.send_message(message.chat.id, f"🔑 Твой ключ:\n\n`{k}`", parse_mode="Markdown")
+        bot.send_message(message.chat.id, f"🔑 Твой ключ:\n\n{k}")
     else:
         bot.send_message(message.chat.id, "📢 Подпишитесь на каналы для получения скрипта и ключа", reply_markup=get_unsub_keyboard(not_subbed))
 
@@ -197,7 +196,7 @@ def admin_panel(message):
     if not is_admin(message.from_user.id):
         return
     refs = len(get_all_ref_links())
-    bot.send_message(message.chat.id, f"🛡 *Админ панель*\n\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs}\n\nВыбери действие:", parse_mode="Markdown", reply_markup=get_admin_keyboard())
+    bot.send_message(message.chat.id, f"🛡 Админ панель\n\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs}\n\nВыбери действие:", reply_markup=get_admin_keyboard())
 
 @bot.message_handler(func=lambda m: m.text == ADMIN_SECRET2)
 def broadcast_panel(message):
@@ -239,17 +238,17 @@ def user_callback(call):
             bot.send_message(call.message.chat.id, text, reply_markup=get_unsub_keyboard(not_subbed, is_ref))
     
     elif action == "get_script":
-        bot.send_message(call.message.chat.id, f"📜 Скрипт на все игры:\n\n```lua\n{SCRIPT_LINK}\n```", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"📜 Скрипт на все игры:\n\n{SCRIPT_LINK}")
         bot.answer_callback_query(call.id)
         user = call.from_user
-        notify_admin(f"📥 *Запросили скрипт!*\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 `{user.id}`")
+        notify_admin(f"📥 Запросили скрипт!\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 {user.id}")
     
     elif action == "get_key":
         k = random.choice(KEYS)
-        bot.send_message(call.message.chat.id, f"🔑 Твой ключ:\n\n`{k}`", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"🔑 Твой ключ:\n\n{k}")
         bot.answer_callback_query(call.id)
         user = call.from_user
-        notify_admin(f"🔑 *Запросили ключ!*\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 `{user.id}`\n🔑 Ключ: `{k}`")
+        notify_admin(f"🔑 Запросили ключ!\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 {user.id}\n🔑 Ключ: {k}")
     
     elif action == "get_private":
         bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
@@ -269,8 +268,8 @@ def user_callback(call):
         if not links:
             bot.send_message(call.message.chat.id, "🔗 Нет реферальных ссылок.")
         else:
-            text = "\n".join(f"• `{l[1]}` — {l[2][:30]}" for l in links)
-            bot.send_message(call.message.chat.id, f"🔗 *Реф. ссылки ({len(links)}):*\n\n{text}", parse_mode="Markdown")
+            text = "\n".join(f"• {l[1]} — {l[2][:30]}" for l in links)
+            bot.send_message(call.message.chat.id, f"🔗 Реф. ссылки ({len(links)}):\n\n{text}")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_ref_del":
@@ -298,7 +297,7 @@ def user_callback(call):
         if not is_admin(user_id):
             return
         refs = len(get_all_ref_links())
-        bot.send_message(call.message.chat.id, f"📊 *Статистика:*\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs}", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"📊 Статистика:\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs}")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_users_list":
@@ -308,10 +307,10 @@ def user_callback(call):
         if not users:
             bot.send_message(call.message.chat.id, "👥 Пользователей пока нет.")
         else:
-            text = "\n".join(f"• `{u}`" for u in users[:50])
+            text = "\n".join(f"• {u}" for u in users[:50])
             if len(users) > 50:
                 text += f"\n... и ещё {len(users) - 50}"
-            bot.send_message(call.message.chat.id, f"👥 *Пользователи ({len(users)}):*\n\n{text}", parse_mode="Markdown")
+            bot.send_message(call.message.chat.id, f"👥 Пользователи ({len(users)}):\n\n{text}")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_broadcast":
@@ -328,7 +327,7 @@ def create_ref_with_message(message):
     msg_text = message.text
     ref = create_ref_link(msg_text)
     link = f"https://t.me/{BOT_USERNAME}?start=ref_{ref}"
-    bot.send_message(message.chat.id, f"✅ Ссылка создана:\n\n`{link}`\n\nТекст: {msg_text}", parse_mode="Markdown")
+    bot.send_message(message.chat.id, f"✅ Ссылка создана:\n\n{link}\n\nТекст: {msg_text}")
 
 def run_server():
     port = int(os.environ.get("PORT", 10000))
