@@ -7,7 +7,7 @@ import socket
 from threading import Thread
 import uuid
 
-TOKEN = os.environ.get("TOKEN", "8993935217:AAFxkEuK_lqK0FANyZbwlEvO6zyBtSEgOCM")
+TOKEN = os.environ.get("TOKEN", "СЮДА_ТОКЕН")
 ADMIN_ID = 8091608667
 ADMIN_SECRET = "larscriptkryyyyyyt"
 ADMIN_SECRET2 = "кресло качалка"
@@ -15,12 +15,35 @@ BOT_USERNAME = "larskeys_bot"
 
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_users.db")
 
-# Вшитые реферальные ссылки (не стираются при сбросе базы)
 HARDCODED_REFS = {
     "5e185ffd": "Спасибо за подписку! Вот скрипт:\n\nloadstring(game:HttpGet(\"https://raw.githubusercontent.com/fsfsfss323/key_system.lua/refs/heads/main/script.lua\"))()",
     "55fd5fde": "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/fsfsfss323/selllemon.lua/refs/heads/main/sellemon.lua\"))()",
     "371bb522": "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/fsfsfss323/cherber.lua/refs/heads/main/cherber.lua\"))()",
 }
+
+GUIDE_TEXT = """
+📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
+
+1️⃣ Скачай инжектор:
+• Android: Delta, Arceus X, Vega X
+• iOS: ScriptWare, Hydrogen
+• PC: Xeno, Ro-Exec, Delta
+
+2️⃣ Открой инжектор и нажми "Execute" или "Inject"
+
+3️⃣ Вставь скрипт в поле ввода
+
+4️⃣ Нажми "Run" или "Execute"
+
+5️⃣ Готово! Скрипт запущен!
+
+🔗 Где скачать инжектор?
+• Delta: deltaexploits.net
+• Arceus X: arceusx.com
+• Xeno: discord.gg/xeno
+
+⚠️ Используй только официальные сайты!
+"""
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -161,6 +184,7 @@ def get_success_keyboard():
     keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
     keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ", callback_data="get_key"))
     keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
+    keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
     keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
     return keyboard
 
@@ -261,6 +285,10 @@ def user_callback(call):
     
     elif action == "get_private":
         bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
+        bot.answer_callback_query(call.id)
+    
+    elif action == "get_guide":
+        bot.send_message(call.message.chat.id, GUIDE_TEXT, parse_mode="Markdown")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_ref_create":
