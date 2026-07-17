@@ -59,14 +59,20 @@ def add_user(user_id, ref_code=None):
     c.execute("SELECT user_id FROM users WHERE user_id = ?", (user_id,))
     exists = c.fetchone()
     if not exists:
-        c.execute("INSERT INTO users (user_id, ref_code) VALUES (?, ?)", (user_id, ref_code))
-        conn.commit()
+        try:
+            c.execute("INSERT INTO users (user_id, ref_code) VALUES (?, ?)", (user_id, ref_code))
+            conn.commit()
+        except:
+            pass
         conn.close()
         return True
     else:
         if ref_code:
-            c.execute("UPDATE users SET ref_code = ? WHERE user_id = ?", (ref_code, user_id))
-            conn.commit()
+            try:
+                c.execute("UPDATE users SET ref_code = ? WHERE user_id = ?", (ref_code, user_id))
+                conn.commit()
+            except:
+                pass
     conn.close()
     return False
 
@@ -182,7 +188,7 @@ def get_unsub_keyboard(not_subbed, is_ref=False):
 def get_success_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
-    keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ", callback_data="get_key"))
+    keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
     keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
     keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
     keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
@@ -220,7 +226,7 @@ def getkey(message):
     not_subbed = get_unsubscribed_channels(message.from_user.id)
     if not not_subbed:
         k = random.choice(KEYS)
-        bot.send_message(message.chat.id, f"🔑 Твой ключ:\n\n{k}")
+        bot.send_message(message.chat.id, f"🔑 Твой ключ для скрипта:\n\n{k}")
     else:
         bot.send_message(message.chat.id, "📢 Подпишитесь на каналы для получения скрипта и ключа", reply_markup=get_unsub_keyboard(not_subbed))
 
@@ -278,7 +284,7 @@ def user_callback(call):
     
     elif action == "get_key":
         k = random.choice(KEYS)
-        bot.send_message(call.message.chat.id, f"🔑 Твой ключ:\n\n{k}")
+        bot.send_message(call.message.chat.id, f"🔑 Твой ключ для скрипта:\n\n{k}")
         bot.answer_callback_query(call.id)
         user = call.from_user
         notify_admin(f"🔑 Запросили ключ!\n\n👤 {user.first_name}\n📛 @{user.username or 'нет'}\n🆔 {user.id}\n🔑 Ключ: {k}")
@@ -316,7 +322,7 @@ def user_callback(call):
             return
         links = get_all_ref_links()
         if not links:
-            bot.send_message(call.message.chat.id, "🔗 Нет ссылок для удаления (вшитые удалить нельзя).")
+            bot.send_message(call.message.chat.id, "🔗 Нет ссылок для удаления.")
         else:
             keyboard = types.InlineKeyboardMarkup(row_width=1)
             for l in links:
