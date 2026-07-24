@@ -31,6 +31,57 @@ WEB_APP_URL = "https://fsfsfss323.github.io/webapp/"
 WELCOME_IMAGE_URL = "https://i.yapx.ru/eBNdd.jpg"
 
 # ============================================================
+# СНАЧАЛА ОПРЕДЕЛЯЕМ ТЕКСТЫ
+# ============================================================
+GUIDE_TEXT = """
+📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
+
+1️⃣ Скачай инжектор:
+• Android: Delta, Arceus X, Vega X
+• iOS: ScriptWare, Hydrogen
+• PC: Xeno, Ro-Exec, Delta
+
+2️⃣ Открой инжектор и нажми "Execute" или "Inject"
+
+3️⃣ Вставь скрипт в поле ввода
+
+4️⃣ Нажми "Run" или "Execute"
+
+5️⃣ Готово! Скрипт запущен!
+
+🔗 Где скачать инжектор?
+• Delta: deltaexploits.net
+• Arceus X: arceusx.com
+• Xeno: discord.gg/xeno
+
+⚠️ Используй только официальные сайты!
+"""
+
+GUIDE_TEXT_EN = """
+📖 *HOW TO RUN SCRIPTS?*
+
+1️⃣ Download injector:
+• Android: Delta, Arceus X, Vega X
+• iOS: ScriptWare, Hydrogen
+• PC: Xeno, Ro-Exec, Delta
+
+2️⃣ Open injector and click "Execute" or "Inject"
+
+3️⃣ Paste script into input field
+
+4️⃣ Click "Run" or "Execute"
+
+5️⃣ Done! Script is running!
+
+🔗 Where to download injector?
+• Delta: deltaexploits.net
+• Arceus X: arceusx.com
+• Xeno: discord.gg/xeno
+
+⚠️ Use only official websites!
+"""
+
+# ============================================================
 # ПЕРЕВОДЫ
 # ============================================================
 LANGUAGES = {
@@ -57,7 +108,7 @@ LANGUAGES = {
         "script_sent": "📜 Скрипт на все игры:\n\n{link}",
         "key_sent": "🔑 Твой ключ для скрипта:\n\n{key}",
         "private_sent": "🔒 Приватный сервер MM2\n\n{link}",
-        "guide_text": GUIDE_TEXT,  # отдельный текст ниже
+        "guide_text": GUIDE_TEXT,
         "admin_panel": "🛡 Админ панель\n\n👥 Пользователей: {users}\n🔗 Реф. ссылок: {refs} (вшитых: {hardcoded})\n\nВыбери действие:",
         "admin_stats": "📊 Статистика:\n👥 Пользователей: {users}\n🔗 Реф. ссылок: {refs} (вшитых: {hardcoded})",
         "admin_users_list": "👥 Пользователи ({count}):\n\n{list}",
@@ -134,57 +185,8 @@ LANGUAGES = {
     }
 }
 
-# Английская версия GUIDE_TEXT
-GUIDE_TEXT_EN = """
-📖 *HOW TO RUN SCRIPTS?*
-
-1️⃣ Download injector:
-• Android: Delta, Arceus X, Vega X
-• iOS: ScriptWare, Hydrogen
-• PC: Xeno, Ro-Exec, Delta
-
-2️⃣ Open injector and click "Execute" or "Inject"
-
-3️⃣ Paste script into input field
-
-4️⃣ Click "Run" or "Execute"
-
-5️⃣ Done! Script is running!
-
-🔗 Where to download injector?
-• Delta: deltaexploits.net
-• Arceus X: arceusx.com
-• Xeno: discord.gg/xeno
-
-⚠️ Use only official websites!
-"""
-
-GUIDE_TEXT = """
-📖 *КАК ЗАПУСТИТЬ СКРИПТЫ?*
-
-1️⃣ Скачай инжектор:
-• Android: Delta, Arceus X, Vega X
-• iOS: ScriptWare, Hydrogen
-• PC: Xeno, Ro-Exec, Delta
-
-2️⃣ Открой инжектор и нажми "Execute" или "Inject"
-
-3️⃣ Вставь скрипт в поле ввода
-
-4️⃣ Нажми "Run" или "Execute"
-
-5️⃣ Готово! Скрипт запущен!
-
-🔗 Где скачать инжектор?
-• Delta: deltaexploits.net
-• Arceus X: arceusx.com
-• Xeno: discord.gg/xeno
-
-⚠️ Используй только официальные сайты!
-"""
-
 # ============================================================
-# БАЗА ДАННЫХ (добавляем поле language)
+# БАЗА ДАННЫХ
 # ============================================================
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -348,9 +350,6 @@ def get_language_keyboard():
     keyboard.add(types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"))
     return keyboard
 
-# ============================================================
-# ФУНКЦИЯ ПОКАЗА ВЫБОРА ЯЗЫКА
-# ============================================================
 def show_language_selection(chat_id, message_id=None):
     text = "🌐 Выбери язык / Choose language:"
     keyboard = get_language_keyboard()
@@ -359,9 +358,6 @@ def show_language_selection(chat_id, message_id=None):
     else:
         bot.send_message(chat_id, text, reply_markup=keyboard)
 
-# ============================================================
-# ОСНОВНАЯ ЛОГИКА ПОСЛЕ ВЫБОРА ЯЗЫКА
-# ============================================================
 def proceed_after_language(message, lang):
     t = LANGUAGES[lang]
     user_id = message.from_user.id
@@ -375,7 +371,6 @@ def proceed_after_language(message, lang):
             reply_markup=get_success_keyboard(lang)
         )
     else:
-        # Проверяем, является ли это реферальным переходом
         args = message.text.split() if message.text else []
         is_ref = len(args) > 1 and args[1].startswith("ref_")
         if is_ref:
@@ -383,9 +378,6 @@ def proceed_after_language(message, lang):
         else:
             bot.send_message(message.chat.id, t["subscribe_prompt"], reply_markup=get_channels_keyboard(is_ref=False, lang=lang))
 
-# ============================================================
-# КЛАВИАТУРЫ (с учётом языка)
-# ============================================================
 def get_channels_keyboard(is_ref=False, lang="ru"):
     t = LANGUAGES[lang]
     keyboard = types.InlineKeyboardMarkup(row_width=1)
@@ -440,56 +432,16 @@ def get_admin_keyboard(lang="ru"):
     return keyboard
 
 # ============================================================
-# ОБРАБОТЧИК КОМАНДЫ /start
+# ОБРАБОТЧИКИ КОМАНД
 # ============================================================
 @bot.message_handler(commands=["start"])
 def start(message):
     user_id = message.from_user.id
-    lang = get_user_language(user_id)
+    add_user(user_id)  # Добавляем пользователя, если его нет
     
-    # Если язык ещё не выбран → показываем выбор
-    if lang is None:
-        # Добавляем пользователя в БД, если его нет
-        add_user(user_id)
-        show_language_selection(message.chat.id)
-        return
-    
-    # Язык уже выбран → продолжаем
-    proceed_after_language(message, lang)
+    # ВСЕГДА ПОКАЗЫВАЕМ ВЫБОР ЯЗЫКА ПРИ /start
+    show_language_selection(message.chat.id)
 
-# ============================================================
-# ОБРАБОТЧИК ВЫБОРА ЯЗЫКА
-# ============================================================
-@bot.callback_query_handler(func=lambda call: call.data.startswith("lang_"))
-def language_selected(call):
-    lang_code = call.data.split("_")[1]
-    if lang_code not in LANGUAGES:
-        bot.answer_callback_query(call.id, "Invalid language")
-        return
-    
-    user_id = call.from_user.id
-    set_user_language(user_id, lang_code)
-    bot.answer_callback_query(call.id, LANGUAGES[lang_code]["language_changed"])
-    
-    # Удаляем сообщение с выбором языка
-    try:
-        bot.delete_message(call.message.chat.id, call.message.message_id)
-    except:
-        pass
-    
-    # Теперь запускаем основную логику
-    # Создаём фейковое сообщение, чтобы передать в proceed_after_language
-    class FakeMessage:
-        def __init__(self, chat_id, from_user, text):
-            self.chat = type('obj', (object,), {'id': chat_id})()
-            self.from_user = from_user
-            self.text = text
-    fake_msg = FakeMessage(call.message.chat.id, call.from_user, "")
-    proceed_after_language(fake_msg, lang_code)
-
-# ============================================================
-# ОСТАЛЬНЫЕ ОБРАБОТЧИКИ (без изменений, но с учётом языка)
-# ============================================================
 @bot.message_handler(commands=["language"])
 def language_command(message):
     user_id = message.from_user.id
@@ -554,20 +506,44 @@ def broadcast_start(message):
     bot.send_message(message.chat.id, t["admin_broadcast_done"].format(sent=count, total=len(users)))
 
 # ============================================================
-# ОБРАБОТЧИК CALLBACK (основной)
+# ОБРАБОТЧИК CALLBACK
 # ============================================================
 @bot.callback_query_handler(func=lambda call: True)
 def user_callback(call):
     action = call.data
     user_id = call.from_user.id
+
+    # Обработка выбора языка
+    if action.startswith("lang_"):
+        lang_code = action.split("_")[1]
+        if lang_code not in LANGUAGES:
+            bot.answer_callback_query(call.id, "Invalid language")
+            return
+        
+        set_user_language(user_id, lang_code)
+        bot.answer_callback_query(call.id, LANGUAGES[lang_code]["language_changed"])
+        
+        try:
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+        except:
+            pass
+        
+        class FakeMessage:
+            def __init__(self, chat_id, from_user, text):
+                self.chat = type('obj', (object,), {'id': chat_id})()
+                self.from_user = from_user
+                self.text = text
+        fake_msg = FakeMessage(call.message.chat.id, call.from_user, "")
+        proceed_after_language(fake_msg, lang_code)
+        return
+
+    # Если язык не выбран, предлагаем выбрать
     lang = get_user_language(user_id)
-    
-    # Если язык не выбран и это не выбор языка, то предлагаем выбрать
-    if lang is None and not action.startswith("lang_"):
+    if lang is None:
         bot.answer_callback_query(call.id, "Сначала выберите язык / Choose language first")
         show_language_selection(call.message.chat.id, call.message.message_id)
         return
-    
+
     t = LANGUAGES[lang]
 
     if action in ["check_sub", "check_sub_ref"]:
